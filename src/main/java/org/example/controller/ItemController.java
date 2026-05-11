@@ -1,6 +1,8 @@
 package org.example.controller;
 
-import org.example.dto.ItemResponseDto;
+import org.example.dto.ItemInput;
+import org.example.dto.ItemResponse;
+import org.example.entity.Item;
 import org.example.service.ItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,39 +34,39 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemResponseDto>> findAll() {
-        return ResponseEntity.status(HttpStatus.OK).body(itemService.findAll());
+    public ResponseEntity<List<ItemResponse>> findAll() {
+        return ResponseEntity.ok(itemService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ItemResponseDto> findById(@PathVariable Long id) {
-        // TODO eleves :
-        // appeler le service et choisir la bonne reponse HTTP.
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    public ResponseEntity<ItemResponse> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(itemService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<ItemResponseDto> create(@RequestBody Object request) {
-        // TODO eleves :
+    public ResponseEntity<ItemResponse> create(@RequestBody ItemInput request) {
         // 1. remplacer Object par un vrai DTO d'entree
         // 2. appeler le service
         // 3. renvoyer 201 Created
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        ItemResponse response = itemService.create(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ItemResponseDto> update(@PathVariable Long id, @RequestBody Object request) {
-        // TODO eleves :
+    public ResponseEntity<ItemResponse> update(@PathVariable Long id, @RequestBody ItemInput request) {
         // 1. remplacer Object par un vrai DTO d'entree
         // 2. appeler le service
         // 3. renvoyer la bonne reponse HTTP
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        ItemResponse response = itemService.update(id, request);
+
+        return ResponseEntity.ok(itemService.findById(id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        // TODO eleves :
         // appeler le service puis choisir la bonne reponse HTTP.
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        itemService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
