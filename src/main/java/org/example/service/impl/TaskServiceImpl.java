@@ -3,6 +3,7 @@ package org.example.service.impl;
 import org.example.dto.TaskInput;
 import org.example.dto.TaskResponse;
 import org.example.entity.Task;
+import org.example.exception.TaskNotFoundException;
 import org.example.exception.WrongValueException;
 import org.example.repository.TaskRepository;
 import org.example.service.TaskService;
@@ -79,7 +80,7 @@ public class TaskServiceImpl implements TaskService {
         Optional<Task> itemOptional = taskRepository.findById(id);
 
         if (itemOptional.isEmpty()) {
-            return null;
+            throw new TaskNotFoundException(id);
         } else  {
             Task task = itemOptional.get();
             return new TaskResponse(
@@ -131,7 +132,7 @@ public class TaskServiceImpl implements TaskService {
         Optional<Task> itemOptional = taskRepository.findById(id);
 
         if (itemOptional.isEmpty()) {
-            return null;
+            throw new TaskNotFoundException(id);
         } else  {
             Task task = itemOptional.get();
             task.setTitle(request.getTitle());
