@@ -26,7 +26,14 @@ public class TaskController {
     }
 
     @GetMapping(params = {"page", "size"})
-    public ResponseEntity<List<TaskResponse>> findAll(@RequestParam int page, @RequestParam int size) {
+    public ResponseEntity<List<TaskResponse>> findAll(@RequestParam int page, @RequestParam int size, @RequestParam(required = false) String status, @RequestParam(required = false) String priority) {
+        if (status != null && !status.isEmpty() && priority != null && !priority.isEmpty()) {
+            return ResponseEntity.ok(taskService.findByStatusAndPriority(status, priority, page, size));
+        } else if (status != null && !status.isEmpty()) {
+            return ResponseEntity.ok(taskService.findByStatus(status, page, size));
+        } else if (priority != null && !priority.isEmpty()) {
+            return ResponseEntity.ok(taskService.findByPriority(priority, page, size));
+        }
         return ResponseEntity.ok(taskService.findAll(page, size));
     }
 
