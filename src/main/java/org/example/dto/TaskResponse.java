@@ -3,7 +3,6 @@ package org.example.dto;
 import org.example.entity.Task;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * DTO de sortie.
@@ -12,7 +11,7 @@ import java.util.Date;
 public class TaskResponse {
 
     private Long id;
-    private String name;
+    private String title;
     private String description;
     private String priority;
     private String status;
@@ -22,9 +21,9 @@ public class TaskResponse {
     public TaskResponse() {
     }
 
-    public TaskResponse(Long id, String name, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
+    public TaskResponse(Long id, String title, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
         this.id = id;
-        this.name = name;
+        this.title = title;
         this.description = description;
         this.priority = priority;
         this.status = status;
@@ -36,7 +35,7 @@ public class TaskResponse {
     public static TaskResponse fromEntity(Task task) {
         return new TaskResponse(
                 task.getId(),
-                task.getName(),
+                task.getTitle(),
                 task.getDescription(),
                 task.getPriority(),
                 task.getStatus(),
@@ -53,12 +52,12 @@ public class TaskResponse {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {

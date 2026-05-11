@@ -5,10 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Null;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * Entite volontairement generique.
@@ -28,7 +26,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String title;
 
     private String description;
 
@@ -45,8 +43,8 @@ public class Task {
     public Task() {
     }
 
-    public Task(String name, String description, String priority, String status,  LocalDateTime creationDate, LocalDateTime deadline) {
-        this.name = name;
+    public Task(String title, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
+        this.title = title;
         this.description = description;
         this.priority = priority;
         this.status = status;
@@ -62,12 +60,12 @@ public class Task {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {

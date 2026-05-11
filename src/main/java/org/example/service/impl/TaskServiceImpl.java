@@ -3,7 +3,6 @@ package org.example.service.impl;
 import org.example.dto.TaskInput;
 import org.example.dto.TaskResponse;
 import org.example.entity.Task;
-import org.example.exception.InvalidGivenDataException;
 import org.example.exception.WrongValueException;
 import org.example.repository.TaskRepository;
 import org.example.service.TaskService;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +81,7 @@ public class TaskServiceImpl implements TaskService {
             Task task = itemOptional.get();
             return new TaskResponse(
                     task.getId(),
-                    task.getName(),
+                    task.getTitle(),
                     task.getDescription(),
                     task.getPriority(),
                     task.getStatus(),
@@ -103,7 +101,7 @@ public class TaskServiceImpl implements TaskService {
         isTaskInputValid(request);
 
         Task task = new Task(
-                request.getTitre(),
+                request.getTitle(),
                 request.getDescription(),
                 request.getPriority(),
                 request.getStatus(),
@@ -127,13 +125,13 @@ public class TaskServiceImpl implements TaskService {
             return null;
         } else  {
             Task task = itemOptional.get();
-            task.setName(request.getTitre());
+            task.setTitle(request.getTitle());
             task.setDescription(request.getDescription());
             task.setStatus(request.getStatus());
             taskRepository.save(task);
             return new TaskResponse(
                     id,
-                    request.getTitre(),
+                    request.getTitle(),
                     request.getDescription(),
                     request.getPriority(),
                     request.getStatus(),
@@ -156,7 +154,7 @@ public class TaskServiceImpl implements TaskService {
     //////////////////////////////// Méthodes utilitaires ///////////////////////////////////////
 
     public static void isTaskInputValid(TaskInput taskInput){
-        isTitleValid(taskInput.getTitre());
+        isTitleValid(taskInput.getTitle());
         isPriorityValid(taskInput.getPriority());
         isStatusValid(taskInput.getStatus());
         isDeadlineValid(taskInput.getDeadline());
