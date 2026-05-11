@@ -5,10 +5,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: coursBasile
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: Pass2026!
+      POSTGRES_USER: Louis
+      POSTGRES_PASSWORD: 1234
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_cours_basile_data:/var/lib/postgresql/data
 

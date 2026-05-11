@@ -69,7 +69,14 @@ public class TaskServiceImpl implements TaskService {
         // 3. creer l'entite
         // 4. sauvegarder avec le repository
         // 5. renvoyer un ItemResponse
-        Task task = new Task(request.getName(), request.getDescription(), request.isDone());
+        Task task = new Task(
+                request.getName(),
+                request.getDescription(),
+                request.getPriority(),
+                request.getStatus(),
+                request.getCreationDate(),
+                request.getDeadline()
+        );
 
         return TaskResponse.fromEntity(taskRepository.save(task));
     }
