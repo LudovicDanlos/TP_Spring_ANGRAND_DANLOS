@@ -1,7 +1,9 @@
 package org.example.dto;
 
 import org.example.entity.Task;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -19,13 +21,15 @@ public class TaskInput {
     // Valeurs possibles TODO, IN_PROGRESS, DONE
     private String status;
 
-    private Date creationDate;
-    private Date deadline;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime creationDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime deadline;
 
     public TaskInput() {
     }
 
-    public TaskInput(String name, String description, String priorite, String status, Date creationDate, Date deadline) {
+    public TaskInput(String name, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
         this.name = name;
         this.description = description;
         this.priority = priority;
@@ -77,19 +81,19 @@ public class TaskInput {
         this.status = status;
     }
 
-    public Date getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
-    public Date getDeadline() {
+    public LocalDateTime getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(Date deadline) {
+    public void setDeadline(LocalDateTime deadline) {
         this.deadline = deadline;
     }
 

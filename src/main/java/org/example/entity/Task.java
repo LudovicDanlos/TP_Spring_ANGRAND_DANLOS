@@ -5,7 +5,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Null;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -19,7 +21,7 @@ import java.util.Date;
  * - Item -> Habit
  */
 @Entity
-@Table(name = "items")
+@Table(name = "tasks")
 public class Task {
 
     @Id
@@ -36,14 +38,14 @@ public class Task {
     // Valeurs possibles TODO, IN_PROGRESS, DONE
     private String status;
 
-    private Date creationDate;
+    private LocalDateTime creationDate;
 
-    private Date deadline;
+    private LocalDateTime deadline;
 
     public Task() {
     }
 
-    public Task(String name, String description, String priority, String status,  Date creationDate, Date deadline) {
+    public Task(String name, String description, String priority, String status,  LocalDateTime creationDate, LocalDateTime deadline) {
         this.name = name;
         this.description = description;
         this.priority = priority;
@@ -92,19 +94,19 @@ public class Task {
         this.status = status;
     }
 
-    public Date getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
-    public Date getDeadline() {
+    public LocalDateTime getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(Date deadline) {
+    public void setDeadline(LocalDateTime deadline) {
         this.deadline = deadline;
     }
 

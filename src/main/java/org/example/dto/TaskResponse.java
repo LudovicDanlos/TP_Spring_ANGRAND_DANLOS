@@ -2,6 +2,7 @@ package org.example.dto;
 
 import org.example.entity.Task;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -15,13 +16,13 @@ public class TaskResponse {
     private String description;
     private String priority;
     private String status;
-    private Date creationDate;
-    private Date deadline;
+    private LocalDateTime creationDate;
+    private LocalDateTime deadline;
 
     public TaskResponse() {
     }
 
-    public TaskResponse(Long id, String name, String description, String priority, String status, Date creationDate, Date deadline) {
+    public TaskResponse(Long id, String name, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -84,19 +85,19 @@ public class TaskResponse {
         this.status = status;
     }
 
-    public Date getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
-    public Date getDeadline() {
+    public LocalDateTime getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(Date deadline) {
+    public void setDeadline(LocalDateTime deadline) {
         this.deadline = deadline;
     }
 

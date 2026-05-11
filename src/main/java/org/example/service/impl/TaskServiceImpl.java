@@ -7,6 +7,7 @@ import org.example.repository.TaskRepository;
 import org.example.service.TaskService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
                 request.getDescription(),
                 request.getPriority(),
                 request.getStatus(),
-                request.getCreationDate(),
+                LocalDateTime.now(), // Temps actuel
                 request.getDeadline()
         );
 
