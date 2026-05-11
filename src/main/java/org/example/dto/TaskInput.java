@@ -5,8 +5,8 @@ import org.example.entity.Task;
 import java.util.Date;
 
 /**
- * DTO de sortie.
- * Permet de controler ce que l'API renvoie.
+ * DTO d'entré.
+ * Permet de controler ce que l'API reçoit.
  */
 public class TaskInput {
 
