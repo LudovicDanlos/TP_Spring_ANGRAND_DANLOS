@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.util.Date;
+
 /**
  * Entite volontairement generique.
  * Les eleves peuvent la garder telle quelle ou la renommer selon leur sujet.
@@ -31,17 +33,23 @@ public class Task {
     // Valeurs possibles LOW, MEDIUM, HIGH
     private String priorite;
 
-    // Valeurs possibles NOT_STARTED, STARTED, DONE
+    // Valeurs possibles TODO, IN_PROGRESS, DONE
     private String status;
+
+    private Date creationDate;
+
+    private Date deadline;
 
     public Task() {
     }
 
-    public Task(String titre, String description, String priorite, String status) {
+    public Task(String titre, String description, String priorite, String status,  Date creationDate, Date deadline) {
         this.titre = titre;
         this.description = description;
         this.priorite = priorite;
         this.status = status;
+        this.creationDate = creationDate;
+        this.deadline = deadline;
     }
 
     public Long getId() {
@@ -82,5 +90,21 @@ public class Task {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
     }
 }
