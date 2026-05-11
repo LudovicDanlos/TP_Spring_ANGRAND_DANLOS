@@ -5,6 +5,8 @@ import org.example.dto.TaskResponse;
 import org.example.entity.Task;
 import org.example.repository.TaskRepository;
 import org.example.service.TaskService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -30,11 +32,12 @@ public class TaskServiceImpl implements TaskService {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
-    public List<TaskResponse> findAll() {
+    public List<TaskResponse> findAll(int page, int size) {
         // Exemple complet :
         // on lit les donnees depuis le repository
         // puis on transforme les entites en DTO de sortie.
-        return taskRepository.findAll()
+        Pageable pageable = PageRequest.of(page, size);
+        return taskRepository.findAll(pageable)
                 .stream()
                 .map(TaskResponse::fromEntity)
                 .toList(); // Ici le stream peut être remplacé par plein d'autre moyen. Il sagit juste d'une manière efficace et efficiente d'écrire cette partie.

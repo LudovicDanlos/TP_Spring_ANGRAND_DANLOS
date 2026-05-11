@@ -12,7 +12,7 @@ import java.util.List;
  */
 public interface TaskService {
 
-    List<TaskResponse> findAll();
+    List<TaskResponse> findAll(int page, int size);
 
     List<TaskResponse> findByStatus(String status);
 
