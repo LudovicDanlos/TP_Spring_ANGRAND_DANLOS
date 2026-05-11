@@ -1,6 +1,6 @@
 package org.example.repository;
 
-import org.example.entity.Item;
+import org.example.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
  * Pas de logique metier ici.
  */
 @Repository
-public interface ItemRepository extends JpaRepository<Item, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long> {
 }

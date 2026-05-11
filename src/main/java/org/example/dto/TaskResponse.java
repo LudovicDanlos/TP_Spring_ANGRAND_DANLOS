@@ -1,34 +1,34 @@
 package org.example.dto;
 
-import org.example.entity.Item;
+import org.example.entity.Task;
 
 /**
  * DTO de sortie.
  * Permet de controler ce que l'API renvoie.
  */
-public class ItemResponse {
+public class TaskResponse {
 
     private Long id;
     private String name;
     private String description;
     private boolean done;
 
-    public ItemResponse() {
+    public TaskResponse() {
     }
 
-    public ItemResponse(Long id, String name, String description, boolean done) {
+    public TaskResponse(Long id, String name, String description, boolean done) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.done = done;
     }
 
-    public static ItemResponse fromEntity(Item item) {
-        return new ItemResponse(
-            item.getId(),
-            item.getName(),
-            item.getDescription(),
-            item.isDone()
+    public static TaskResponse fromEntity(Task task) {
+        return new TaskResponse(
+            task.getId(),
+            task.getName(),
+            task.getDescription(),
+            task.isDone()
         );
     }
 

@@ -1,10 +1,10 @@
 package org.example.service;
 
-import org.example.dto.ItemInput;
-import org.example.dto.ItemResponse;
-import org.example.entity.Item;
-import org.example.repository.ItemRepository;
-import org.example.service.impl.ItemServiceImpl;
+import org.example.dto.TaskInput;
+import org.example.dto.TaskResponse;
+import org.example.entity.Task;
+import org.example.repository.TaskRepository;
+import org.example.service.impl.TaskServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,22 +30,22 @@ import static org.mockito.Mockito.when;
  * - ajoutez des tests sur les cas d'erreur
  */
 @ExtendWith(MockitoExtension.class)
-class ItemServiceImplTest {
+class TaskServiceImplTest {
 
     @Mock
-    private ItemRepository itemRepository;
+    private TaskRepository taskRepository;
 
     @InjectMocks
-    private ItemServiceImpl itemService;
+    private TaskServiceImpl itemService;
 
     @Test
     void findAll_shouldReturnMappedResponses() {
-        Item firstItem = new Item("Premier item", "Description de test", false);
-        firstItem.setId(1L);
+        Task firstTask = new Task("Premier item", "Description de test", false);
+        firstTask.setId(1L);
 
-        when(itemRepository.findAll()).thenReturn(List.of(firstItem));
+        when(taskRepository.findAll()).thenReturn(List.of(firstTask));
 
-        List<ItemResponse> response = itemService.findAll();
+        List<TaskResponse> response = itemService.findAll();
 
         assertEquals(1, response.size());
         assertEquals(1L, response.getFirst().getId());
@@ -56,12 +56,12 @@ class ItemServiceImplTest {
 
     @Test
     void findById_shouldReturnMappedResponses() {
-        Item firstItem = new Item("Premier item", "Description de test", false);
-        firstItem.setId(1L);
+        Task firstTask = new Task("Premier item", "Description de test", false);
+        firstTask.setId(1L);
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(firstItem));
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
 
-        ItemResponse response = itemService.findById(1L);
+        TaskResponse response = itemService.findById(1L);
 
         assertEquals(1L, response.getId());
         assertEquals("Premier item", response.getName());
@@ -71,17 +71,17 @@ class ItemServiceImplTest {
 
     @Test
     void update_shouldReturnMappedResponses() {
-        Item firstItem = new Item("Premier item", "Description de test", false);
-        firstItem.setId(1L);
+        Task firstTask = new Task("Premier item", "Description de test", false);
+        firstTask.setId(1L);
 
-        ItemInput itemChange = new ItemInput(1L, "Change item", "Description de test change", true);
-        Item savedItem = new Item(itemChange.getName(), itemChange.getDescription(), itemChange.isDone());
-        savedItem.setId(1L);
+        TaskInput itemChange = new TaskInput(1L, "Change item", "Description de test change", true);
+        Task savedTask = new Task(itemChange.getName(), itemChange.getDescription(), itemChange.isDone());
+        savedTask.setId(1L);
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(firstItem));
-        when(itemRepository.save(firstItem)).thenReturn(savedItem);
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
+        when(taskRepository.save(firstTask)).thenReturn(savedTask);
 
-        ItemResponse response = itemService.update(1L, itemChange);
+        TaskResponse response = itemService.update(1L, itemChange);
 
         assertEquals(1L, response.getId());
         assertEquals("Change item", response.getName());
@@ -91,25 +91,25 @@ class ItemServiceImplTest {
 
     @Test
     void delete_shouldReturnMappedResponses() {
-        Item firstItem = new Item("Premier item", "Description de test", false);
-        firstItem.setId(1L);
+        Task firstTask = new Task("Premier item", "Description de test", false);
+        firstTask.setId(1L);
 
-        when(itemRepository.findById(1L)).thenReturn(Optional.of(firstItem));
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
 
         itemService.delete(1L);
 
-        verify(itemRepository).delete(firstItem);
+        verify(taskRepository).delete(firstTask);
     }
 
     @Test
     void create_shouldReturnMappedResponses() {
-        ItemInput itemInput = new ItemInput(1L, "Nouveau item", "Description de test", false);
-        Item savedItem = new Item(itemInput.getName(), itemInput.getDescription(), itemInput.isDone());
-        savedItem.setId(1L);
+        TaskInput taskInput = new TaskInput(1L, "Nouveau item", "Description de test", false);
+        Task savedTask = new Task(taskInput.getName(), taskInput.getDescription(), taskInput.isDone());
+        savedTask.setId(1L);
 
-        when(itemRepository.save(any(Item.class))).thenReturn(savedItem);
+        when(taskRepository.save(any(Task.class))).thenReturn(savedTask);
 
-        ItemResponse response = itemService.create(itemInput);
+        TaskResponse response = itemService.create(taskInput);
 
         assertEquals(1L, response.getId());
         assertEquals("Nouveau item", response.getName());

@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TdMaster1Application {
+public class TPApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(TdMaster1Application.class, args);
+        SpringApplication.run(TPApplication.class, args);
     }
 }
