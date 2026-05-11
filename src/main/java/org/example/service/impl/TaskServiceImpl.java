@@ -186,4 +186,18 @@ public class TaskServiceImpl implements TaskService {
             throw new WrongValueException("La valeur de l'attribut 'priority' est obligatoire et ne peut être autre que : LOW, MEDIUM ou HIGH");
         }
     }
+
+    public static void isStatusValid(String status){
+        boolean statusValid = false;
+
+        if (!status.isEmpty()){
+            if ((status.compareTo("TODO") == 0) || (status.compareTo("IN_PROGRESS") == 0) || (status.compareTo("DONE") == 0)){
+                statusValid = true;
+            }
+        }
+
+        if (!statusValid){
+            throw new WrongValueException("La valeur de l'attribut 'status' est obligatoire et ne peut être autre que : TODO, IN_PROGRESS ou DONE");
+        }
+    }
 }
