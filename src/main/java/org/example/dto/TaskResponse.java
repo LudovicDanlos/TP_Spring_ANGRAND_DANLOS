@@ -11,9 +11,9 @@ import java.util.Date;
 public class TaskResponse {
 
     private Long id;
-    private String titre;
+    private String name;
     private String description;
-    private boolean priorite;
+    private String priority;
     private String status;
     private Date creationDate;
     private Date deadline;
@@ -21,11 +21,11 @@ public class TaskResponse {
     public TaskResponse() {
     }
 
-    public TaskResponse(Long id, String titre, String description, boolean priorite, String status, Date creationDate, Date deadline) {
+    public TaskResponse(Long id, String name, String description, String priority, String status, Date creationDate, Date deadline) {
         this.id = id;
-        this.titre = titre;
+        this.name = name;
         this.description = description;
-        this.priorite = priorite;
+        this.priority = priority;
         this.status = status;
         this.creationDate = creationDate;
         this.deadline = deadline;
@@ -35,9 +35,9 @@ public class TaskResponse {
     public static TaskResponse fromEntity(Task task) {
         return new TaskResponse(
                 task.getId(),
-                task.getTitre(),
+                task.getName(),
                 task.getDescription(),
-                task.getPriorite(),
+                task.getPriority(),
                 task.getStatus(),
                 task.getCreationDate(),
                 task.getDeadline()
@@ -52,12 +52,12 @@ public class TaskResponse {
         this.id = id;
     }
 
-    public String getTitre() {
-        return titre;
+    public String getName() {
+        return name;
     }
 
-    public void setTitre(String titre) {
-        this.titre = titre;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -68,12 +68,12 @@ public class TaskResponse {
         this.description = description;
     }
 
-    public boolean isPriorite() {
-        return priorite;
+    public String getPriority() {
+        return priority;
     }
 
-    public void setPriorite(boolean priorite) {
-        this.priorite = priorite;
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
     public String getStatus() {
@@ -98,5 +98,9 @@ public class TaskResponse {
 
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
+    }
+
+    public boolean isDone() {
+        return this.status.equals("DONE");
     }
 }

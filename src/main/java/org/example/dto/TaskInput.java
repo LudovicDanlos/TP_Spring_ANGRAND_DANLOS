@@ -10,11 +10,11 @@ import java.util.Date;
  */
 public class TaskInput {
 
-    private String titre;
+    private String name;
     private String description;
 
     // Valeurs possibles LOW, MEDIUM, HIGH
-    private String priorite;
+    private String priority;
 
     // Valeurs possibles TODO, IN_PROGRESS, DONE
     private String status;
@@ -25,10 +25,10 @@ public class TaskInput {
     public TaskInput() {
     }
 
-    public TaskInput(String titre, String description, String priorite, String status, Date creationDate, Date deadline) {
-        this.titre = titre;
+    public TaskInput(String name, String description, String priorite, String status, Date creationDate, Date deadline) {
+        this.name = name;
         this.description = description;
-        this.priorite = priorite;
+        this.priority = priority;
         this.status = status;
         this.creationDate = creationDate;
         this.deadline = deadline;
@@ -36,36 +36,64 @@ public class TaskInput {
 
     public static TaskInput fromEntity(Task task) {
         return new TaskInput(
-            task.getTitre(),
+            task.getName(),
             task.getDescription(),
-            task.getPriorite(),
+            task.getPriority(),
             task.getStatus(),
             task.getCreationDate(),
             task.getDeadline()
         );
     }
 
-    public String getTitre() {
-        return titre;
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public String getPriorite() {
-        return priorite;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getPriority() {
+        return priority;
+    }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
     public String getStatus() {
         return status;
     }
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Date getCreationDate() {
         return creationDate;
     }
 
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
     public Date getDeadline() {
         return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
+    }
+
+    public boolean isDone() {
+        return this.status.equals("DONE");
     }
 }

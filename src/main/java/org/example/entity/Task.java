@@ -26,12 +26,12 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String titre;
+    private String name;
 
     private String description;
 
     // Valeurs possibles LOW, MEDIUM, HIGH
-    private String priorite;
+    private String priority;
 
     // Valeurs possibles TODO, IN_PROGRESS, DONE
     private String status;
@@ -43,10 +43,10 @@ public class Task {
     public Task() {
     }
 
-    public Task(String titre, String description, String priorite, String status,  Date creationDate, Date deadline) {
-        this.titre = titre;
+    public Task(String name, String description, String priority, String status,  Date creationDate, Date deadline) {
+        this.name = name;
         this.description = description;
-        this.priorite = priorite;
+        this.priority = priority;
         this.status = status;
         this.creationDate = creationDate;
         this.deadline = deadline;
@@ -60,12 +60,12 @@ public class Task {
         this.id = id;
     }
 
-    public String getTitre() {
-        return titre;
+    public String getName() {
+        return name;
     }
 
-    public void setTitre(String titre) {
-        this.titre = titre;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -76,12 +76,12 @@ public class Task {
         this.description = description;
     }
 
-    public String getPriorite() {
-        return priorite;
+    public String getPriority() {
+        return priority;
     }
 
-    public void setPriorite(String priorite) {
-        this.priorite = priorite;
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
     public String getStatus() {
@@ -106,5 +106,9 @@ public class Task {
 
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
+    }
+
+    public boolean isDone() {
+        return this.status.equals("DONE");
     }
 }
