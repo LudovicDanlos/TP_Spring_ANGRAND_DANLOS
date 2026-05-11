@@ -200,4 +200,18 @@ public class TaskServiceImpl implements TaskService {
             throw new WrongValueException("La valeur de l'attribut 'status' est obligatoire et ne peut être autre que : TODO, IN_PROGRESS ou DONE");
         }
     }
+
+    public static void isDeadlineValid(LocalDateTime deadline){
+        boolean deadlineValid = false;
+
+        if (deadline != null){
+            if (deadline.isAfter(LocalDateTime.now())){
+                deadlineValid = true;
+            }
+        }
+
+        if (!deadlineValid){
+            throw new WrongValueException("La valeur de l'attribut 'deadline' est obligatoire et doit être une date future à la date actuelle");
+        }
+    }
 }
