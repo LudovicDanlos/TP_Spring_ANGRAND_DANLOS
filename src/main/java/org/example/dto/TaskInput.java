@@ -28,24 +28,12 @@ public class TaskInput {
     public TaskInput() {
     }
 
-    public TaskInput(String titre, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
+    public TaskInput(String titre, String description, String priority, String status, LocalDateTime deadline) {
         this.titre = titre;
         this.description = description;
         this.priority = priority;
         this.status = status;
-        this.creationDate = creationDate;
         this.deadline = deadline;
-    }
-
-    public static TaskInput fromEntity(Task task) {
-        return new TaskInput(
-            task.getName(),
-            task.getDescription(),
-            task.getPriority(),
-            task.getStatus(),
-            task.getCreationDate(),
-            task.getDeadline()
-        );
     }
 
     public String getTitre() {
