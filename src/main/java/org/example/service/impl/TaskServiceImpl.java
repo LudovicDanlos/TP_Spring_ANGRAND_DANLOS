@@ -4,6 +4,7 @@ import org.example.dto.TaskInput;
 import org.example.dto.TaskResponse;
 import org.example.entity.Task;
 import org.example.exception.InvalidGivenDataException;
+import org.example.exception.WrongValueException;
 import org.example.repository.TaskRepository;
 import org.example.service.TaskService;
 import org.springframework.data.domain.PageRequest;
@@ -169,6 +170,20 @@ public class TaskServiceImpl implements TaskService {
 
         if (!taskInputValid){
             throw new InvalidGivenDataException();
+        }
+    }
+
+    public static void isPriorityValid(String priority){
+        boolean priorityValid = false;
+
+        if (!priority.isEmpty()){
+            if ((priority.compareTo("LOW") == 0) || (priority.compareTo("MEDIUM") == 0) || (priority.compareTo("HIGH") == 0)){
+                priorityValid = true;
+            }
+        }
+
+        if (!priorityValid){
+            throw new WrongValueException("La valeur de l'attribut 'priority' est obligatoire et ne peut être autre que : LOW, MEDIUM ou HIGH");
         }
     }
 }
