@@ -156,21 +156,10 @@ public class TaskServiceImpl implements TaskService {
     //////////////////////////////// Méthodes utilitaires ///////////////////////////////////////
 
     public static void isTaskInputValid(TaskInput taskInput){
-        boolean taskInputValid = false;
-
-        if (!taskInput.getTitre().isEmpty()){
-            if (!taskInput.getPriority().isEmpty()){
-                if (!taskInput.getStatus().isEmpty()){
-                    if ((taskInput.getDeadline() != null) && (taskInput.getDeadline().isAfter(LocalDateTime.now()))){
-                        taskInputValid = true;
-                    }
-                }
-            }
-        }
-
-        if (!taskInputValid){
-            throw new InvalidGivenDataException();
-        }
+        isTitleValid(taskInput.getTitre());
+        isPriorityValid(taskInput.getPriority());
+        isStatusValid(taskInput.getStatus());
+        isDeadlineValid(taskInput.getDeadline());
     }
 
     public static void isTitleValid(String title){
