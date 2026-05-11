@@ -14,6 +14,12 @@ public interface TaskService {
 
     List<TaskResponse> findAll();
 
+    List<TaskResponse> findByStatus(String status);
+
+    List<TaskResponse> findByPriority(String priority);
+
+    List<TaskResponse> findByStatusAndPriority(String status, String priority);
+
     TaskResponse findById(Long id);
 
     TaskResponse create(TaskInput request);

@@ -96,8 +96,4 @@ public class TaskInput {
     public void setDeadline(LocalDateTime deadline) {
         this.deadline = deadline;
     }
-
-    public boolean isDone() {
-        return this.status.equals("DONE");
-    }
 }

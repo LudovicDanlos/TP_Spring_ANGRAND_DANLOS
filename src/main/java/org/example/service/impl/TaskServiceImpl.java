@@ -8,6 +8,7 @@ import org.example.service.TaskService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +26,8 @@ public class TaskServiceImpl implements TaskService {
     public TaskServiceImpl(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
+
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Override
     public List<TaskResponse> findAll() {
@@ -46,6 +49,30 @@ public class TaskServiceImpl implements TaskService {
         }
         return itemResponses;
          */
+    }
+
+    @Override
+    public List<TaskResponse> findByStatus(String status) {
+        return taskRepository.findByStatus(status)
+                .stream()
+                .map(TaskResponse::fromEntity)
+                .toList();
+    }
+
+    @Override
+    public List<TaskResponse> findByPriority(String priority) {
+        return taskRepository.findByPriority(priority)
+                .stream()
+                .map(TaskResponse::fromEntity)
+                .toList();
+    }
+
+    @Override
+    public List<TaskResponse> findByStatusAndPriority(String status, String priority) {
+        return taskRepository.findByStatusAndPriority(status, priority)
+                .stream()
+                .map(TaskResponse::fromEntity)
+                .toList();
     }
 
     @Override

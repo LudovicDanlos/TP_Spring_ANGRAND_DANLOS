@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -33,7 +34,14 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> findAll() {
+    public ResponseEntity<List<TaskResponse>> findAll(@RequestParam(required = false) String status, @RequestParam(required = false) String priority) {
+        if (status != null && !status.isEmpty() && priority != null && !priority.isEmpty()) {
+            return ResponseEntity.ok(taskService.findByStatusAndPriority(status, priority));
+        } else if (status != null && !status.isEmpty()) {
+            return ResponseEntity.ok(taskService.findByStatus(status));
+        } else if (priority != null && !priority.isEmpty()) {
+            return ResponseEntity.ok(taskService.findByPriority(priority));
+        }
         return ResponseEntity.ok(taskService.findAll());
     }
 
