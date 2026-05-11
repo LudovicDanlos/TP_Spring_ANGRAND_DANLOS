@@ -160,6 +160,10 @@ public class TaskServiceImpl implements TaskService {
         // 3. reflechir au comportement si l'id n'existe pas
         Optional<Task> itemOptional = taskRepository.findById(id);
 
+        if (itemOptional.isEmpty()) {
+            throw new TaskNotFoundException(id);
+        }
+
         itemOptional.ifPresent(taskRepository::delete);
     }
 
