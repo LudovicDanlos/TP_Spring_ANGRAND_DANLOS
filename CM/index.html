@@ -1,0 +1,1992 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer et comprendre une API avec Spring Boot</title>
+  <style>
+    :root {
+      --bg: #f5efe7;
+      --bg-2: #efe3d2;
+      --surface: rgba(255, 250, 243, 0.9);
+      --surface-2: #fffaf4;
+      --ink: #1f2937;
+      --muted: #5f6b7a;
+      --line: rgba(31, 41, 55, 0.1);
+      --amber: #c2410c;
+      --amber-soft: #fde8d8;
+      --teal: #0f766e;
+      --teal-soft: #daf3ef;
+      --slate: #334155;
+      --shadow: 0 24px 80px rgba(57, 39, 20, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(194, 65, 12, 0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.16), transparent 30%),
+        linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 1.8rem;
+      padding: 4rem 4.5rem 6rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(36px);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .panel,
+    .visual {
+      background: var(--surface);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .panel {
+      padding: 2.2rem 2.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .visual {
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      justify-content: center;
+    }
+
+    .eyebrow,
+    .timebox {
+      display: inline-flex;
+      width: fit-content;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.42rem 0.78rem;
+    }
+
+    .eyebrow {
+      color: var(--amber);
+      background: var(--amber-soft);
+      margin-bottom: 0.7rem;
+    }
+
+    .timebox {
+      color: var(--teal);
+      background: var(--teal-soft);
+      margin-top: 1rem;
+    }
+
+    h1, h2 {
+      margin: 0 0 1rem;
+      line-height: 1.06;
+    }
+
+    h1 {
+      font-size: clamp(2.6rem, 5vw, 4.8rem);
+    }
+
+    h2 {
+      font-size: clamp(2rem, 3.2vw, 3rem);
+    }
+
+    .lead {
+      margin: 0 0 1.2rem;
+      color: var(--muted);
+      font-size: 1.14rem;
+      max-width: 62ch;
+    }
+
+    .accent {
+      color: var(--amber);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      display: grid;
+      gap: 0.7rem;
+      font-size: 1.06rem;
+    }
+
+    li::marker {
+      color: var(--teal);
+    }
+
+    .cards-2,
+    .cards-3,
+    .cards-4 {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    .cards-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cards-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cards-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 1rem;
+    }
+
+    .card strong {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: var(--teal);
+    }
+
+    .diagram,
+    .code,
+    .mermaid-box,
+    .table-box,
+    .placeholder,
+    .prompt,
+    .question {
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      padding: 1rem 1.05rem;
+    }
+
+    .code,
+    .mermaid-box {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.93rem;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    .code.dark {
+      background: #1f2937;
+      color: #f8fafc;
+      border-color: #1f2937;
+    }
+
+    .placeholder,
+    .prompt {
+      border-style: dashed;
+      background: rgba(15, 118, 110, 0.05);
+      border-color: rgba(15, 118, 110, 0.28);
+    }
+
+    .placeholder strong,
+    .prompt strong,
+    .question strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--teal);
+    }
+
+    .diagram svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .layer-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .layer-heading {
+      text-align: center;
+    }
+
+    .layer-heading strong {
+      display: block;
+      font-size: 1.35rem;
+      color: var(--ink);
+      margin-bottom: 0.2rem;
+    }
+
+    .layer-heading span {
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .layer-box {
+      border-radius: 20px;
+      border: 2px solid var(--line);
+      padding: 0.9rem 1rem;
+      text-align: center;
+      background: #fff;
+    }
+
+    .layer-box strong {
+      display: block;
+      font-size: 1.15rem;
+      margin-bottom: 0.22rem;
+    }
+
+    .layer-box span {
+      display: block;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .layer-box.controller {
+      background: var(--teal-soft);
+      border-color: rgba(15, 118, 110, 0.38);
+    }
+
+    .layer-box.controller strong {
+      color: var(--teal);
+    }
+
+    .layer-box.service {
+      background: var(--amber-soft);
+      border-color: rgba(194, 65, 12, 0.28);
+    }
+
+    .layer-box.service strong {
+      color: var(--amber);
+    }
+
+    .layer-box.repository {
+      background: #fff7ea;
+      border-color: rgba(217, 119, 6, 0.3);
+    }
+
+    .layer-box.repository strong {
+      color: #b45309;
+    }
+
+    .layer-box.database {
+      background: #f8fafc;
+      border-color: rgba(51, 65, 85, 0.22);
+    }
+
+    .layer-box.database strong {
+      color: var(--slate);
+    }
+
+    .layer-arrow {
+      text-align: center;
+      font-size: 1.25rem;
+      line-height: 1;
+      color: var(--slate);
+      font-weight: 700;
+    }
+
+    .layer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.7rem;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #f6ecdd;
+      color: var(--slate);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.8rem;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 0.38rem 0.7rem;
+      font-size: 0.9rem;
+    }
+
+    .footer {
+      position: fixed;
+      inset: auto 1.5rem 1.2rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      z-index: 20;
+    }
+
+    .controls,
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-radius: 999px;
+      background: rgba(255, 250, 243, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.08);
+      box-shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .controls {
+      padding: 0.45rem;
+    }
+
+    .counter {
+      padding: 0.72rem 1rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 700;
+      padding: 0.72rem 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--amber);
+      color: #fff;
+    }
+
+    .mini {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 1100px) {
+      body {
+        overflow: auto;
+      }
+
+      .deck {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .slide,
+      .slide.active {
+        position: relative;
+        opacity: 1;
+        pointer-events: auto;
+        transform: none;
+        min-height: 100vh;
+        grid-template-columns: 1fr;
+        padding: 1.4rem 1.1rem 5.6rem;
+      }
+
+      .cards-2,
+      .cards-3,
+      .cards-4 {
+        grid-template-columns: 1fr;
+      }
+
+      .footer {
+        position: sticky;
+        bottom: 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <section class="slide active">
+      <article class="panel">
+        <span class="eyebrow">Cours Magistral • 4h30</span>
+        <h1>Créer et comprendre une <span class="accent">API</span> avec Spring Boot</h1>
+        <p class="lead">Puis comprendre les architectures possibles autour d’une API, avec une <strong>To-Do List</strong> comme fil rouge du début à la fin.</p>
+        <div class="tags">
+          <span class="tag">Débutants Java</span>
+          <span class="tag">REST</span>
+          <span class="tag">Spring Boot</span>
+          <span class="tag">Architecture</span>
+        </div>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg" aria-label="Vue d'ensemble du cours">
+            <rect x="40" y="110" width="110" height="70" rx="18" fill="#daf3ef" stroke="#0f766e"/>
+            <text x="95" y="152" text-anchor="middle" font-size="20" font-weight="700" fill="#0f766e">Client</text>
+            <rect x="215" y="95" width="130" height="100" rx="20" fill="#fde8d8" stroke="#c2410c"/>
+            <text x="280" y="135" text-anchor="middle" font-size="20" font-weight="700" fill="#c2410c">API</text>
+            <text x="280" y="162" text-anchor="middle" font-size="15" fill="#1f2937">Spring Boot</text>
+            <rect x="410" y="110" width="110" height="70" rx="18" fill="#fff" stroke="#334155"/>
+            <text x="465" y="152" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">Base</text>
+            <line x1="150" y1="145" x2="215" y2="145" stroke="#0f766e" stroke-width="4"/>
+            <line x1="345" y1="145" x2="410" y2="145" stroke="#c2410c" stroke-width="4"/>
+            <text x="280" y="252" text-anchor="middle" font-size="22" font-weight="700" fill="#1f2937">Exemple metier : To-Do List</text>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Plan du Cours</span>
+        <h2>Découpage temporel</h2>
+        <ul>
+          <li>Introduction, contexte et API : <strong>45 min</strong></li>
+          <li>Spring et Spring Boot : <strong>1h30</strong></li>
+          <li>Pause : <strong>10 à 15 min</strong></li>
+          <li>Architectures globales d’API : <strong>1h</strong></li>
+          <li>Architectures internes du code + conclusion : <strong>1h45</strong></li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card">
+            <strong>Fil rouge</strong>
+            créer, lire, modifier et supprimer des tâches
+          </div>
+          <div class="card">
+            <strong>Objectif</strong>
+            comprendre avant de coder
+          </div>
+          <div class="card">
+            <strong>Niveau</strong>
+            vocabulaire simple, exemples courts
+          </div>
+          <div class="card">
+            <strong>Méthode</strong>
+            une idée principale par slide
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Partie 1</span>
+        <h2>Pourquoi une To-Do List a besoin d’une API</h2>
+        <ul>
+          <li>L’utilisateur veut voir ses tâches sur mobile, web ou desktop.</li>
+          <li>Les données doivent rester au même endroit.</li>
+          <li>Plusieurs clients doivent pouvoir parler au même système.</li>
+          <li>L’API sert d’intermédiaire entre l’interface et les données.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-3">
+          <div class="card"><strong>Web</strong>liste dans un navigateur</div>
+          <div class="card"><strong>Mobile</strong>liste sur smartphone</div>
+          <div class="card"><strong>Admin</strong>tableau de bord simple</div>
+        </div>
+        <div class="question">
+          <strong>Question au public</strong>
+          Si l’application existe sur trois écrans différents, où faut-il centraliser les données ?
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API</span>
+        <h2>Définition simple d’une API</h2>
+        <ul>
+          <li>Une API est une <strong>porte d’entrée</strong> vers une application.</li>
+          <li>Elle reçoit des demandes et renvoie des réponses.</li>
+          <li>Elle expose des règles claires sur ce qu’on peut faire.</li>
+          <li>Dans notre cas : gérer des tâches.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" aria-label="API comme porte d'entree">
+            <rect x="40" y="100" width="120" height="60" rx="16" fill="#daf3ef" stroke="#0f766e"/>
+            <text x="100" y="138" text-anchor="middle" font-size="18" font-weight="700" fill="#0f766e">Client</text>
+            <rect x="220" y="86" width="120" height="88" rx="20" fill="#fde8d8" stroke="#c2410c"/>
+            <text x="280" y="128" text-anchor="middle" font-size="22" font-weight="700" fill="#c2410c">API</text>
+            <rect x="400" y="100" width="120" height="60" rx="16" fill="#fff" stroke="#334155"/>
+            <text x="460" y="138" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">Donnees</text>
+            <line x1="160" y1="130" x2="220" y2="130" stroke="#0f766e" stroke-width="4"/>
+            <line x1="340" y1="130" x2="400" y2="130" stroke="#c2410c" stroke-width="4"/>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Système</span>
+        <h2>Client, serveur, base de données</h2>
+        <ul>
+          <li>Le client envoie une demande.</li>
+          <li>Le serveur contient l’API.</li>
+          <li>L’API parle à la base de données.</li>
+          <li>La réponse repart vers le client.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg" aria-label="Cycle d'une requete entre client, API et base de donnees">
+            <rect x="38" y="110" width="120" height="68" rx="18" fill="#daf3ef" stroke="#0f766e" stroke-width="3"/>
+            <text x="98" y="140" text-anchor="middle" font-size="20" font-weight="700" fill="#0f766e">Client</text>
+            <text x="98" y="164" text-anchor="middle" font-size="14" fill="#0f766e">web ou mobile</text>
+
+            <rect x="212" y="92" width="138" height="104" rx="22" fill="#fde8d8" stroke="#c2410c" stroke-width="3"/>
+            <text x="281" y="133" text-anchor="middle" font-size="24" font-weight="700" fill="#c2410c">API</text>
+            <text x="281" y="160" text-anchor="middle" font-size="15" fill="#1f2937">Spring Boot</text>
+            <text x="281" y="180" text-anchor="middle" font-size="15" fill="#1f2937">traite la demande</text>
+
+            <rect x="404" y="110" width="120" height="68" rx="18" fill="#ffffff" stroke="#334155" stroke-width="3"/>
+            <text x="464" y="140" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">Base</text>
+            <text x="464" y="164" text-anchor="middle" font-size="14" fill="#334155">des donnees</text>
+
+            <line x1="158" y1="126" x2="212" y2="126" stroke="#0f766e" stroke-width="4"/>
+            <polygon points="212,126 200,120 200,132" fill="#0f766e"/>
+            <text x="185" y="112" text-anchor="middle" font-size="13" fill="#0f766e">requete</text>
+
+            <line x1="350" y1="126" x2="404" y2="126" stroke="#c2410c" stroke-width="4"/>
+            <polygon points="404,126 392,120 392,132" fill="#c2410c"/>
+            <text x="377" y="110" text-anchor="middle" font-size="12" fill="#c2410c">lecture /</text>
+            <text x="377" y="124" text-anchor="middle" font-size="12" fill="#c2410c">ecriture</text>
+
+            <line x1="404" y1="162" x2="350" y2="162" stroke="#334155" stroke-width="4"/>
+            <polygon points="350,162 362,156 362,168" fill="#334155"/>
+            <text x="377" y="182" text-anchor="middle" font-size="13" fill="#334155">resultat</text>
+
+            <line x1="212" y1="162" x2="158" y2="162" stroke="#0f766e" stroke-width="4"/>
+            <polygon points="158,162 170,156 170,168" fill="#0f766e"/>
+            <text x="185" y="178" text-anchor="middle" font-size="12" fill="#0f766e">reponse</text>
+            <text x="185" y="192" text-anchor="middle" font-size="12" fill="#0f766e">JSON</text>
+
+            <text x="281" y="256" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2937">Cycle complet d'une requete</text>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">HTTP</span>
+        <h2>HTTP sert à transporter les demandes</h2>
+        <ul>
+          <li>Le navigateur et l’application mobile parlent souvent en HTTP.</li>
+          <li>HTTP transporte une méthode, une URL et parfois un corps.</li>
+          <li>Le serveur renvoie un statut et des données.</li>
+          <li>Exemple : demander la liste des tâches.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">GET /tasks HTTP/1.1
+Host: todo.local
+
+HTTP/1.1 200 OK
+Content-Type: application/json</div>
+        <div class="question">
+          <strong>Analogie</strong>
+          HTTP ressemble à une enveloppe qui transporte une demande compréhensible par les deux côtés.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Méthodes</span>
+        <h2>GET, POST, PUT, DELETE sur la To-Do List</h2>
+        <ul>
+          <li><strong>GET /tasks</strong> : lire les tâches.</li>
+          <li><strong>POST /tasks</strong> : créer une tâche.</li>
+          <li><strong>PUT /tasks/1</strong> : modifier une tâche.</li>
+          <li><strong>DELETE /tasks/1</strong> : supprimer une tâche.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Lire</strong>GET</div>
+          <div class="card"><strong>Créer</strong>POST</div>
+          <div class="card"><strong>Modifier</strong>PUT</div>
+          <div class="card"><strong>Supprimer</strong>DELETE</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Choix</span>
+        <h2>Choisir l’architecture interne</h2>
+        <ul>
+          <li>Architecture Spring classique (layers) : très adaptée pour débuter.</li>
+          <li>Hexagonale : utile quand le métier et l’évolutivité deviennent centraux.</li>
+          <li>Le niveau de structure doit rester proportionnel au besoin.</li>
+          <li>On peut commencer simple puis raffiner ensuite.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <div class="layer-stack" aria-label="Schéma architecture en couches">
+            <div class="layer-heading">
+              <strong>Architecture layers</strong>
+              <span>Chaque couche délègue surtout à la couche juste en dessous.</span>
+            </div>
+            <div class="layer-box controller">
+              <strong>Controller</strong>
+              <span>HTTP, routes, paramètres, réponses</span>
+            </div>
+            <div class="layer-arrow">↓</div>
+            <div class="layer-box service">
+              <strong>Service</strong>
+              <span>Règles métier, validations, orchestration</span>
+            </div>
+            <div class="layer-arrow">↓</div>
+            <div class="layer-box repository">
+              <strong>Repository</strong>
+              <span>Accès aux données, JPA, requêtes</span>
+            </div>
+            <div class="layer-arrow">↓</div>
+            <div class="layer-box database">
+              <strong>Base de données</strong>
+              <span>Stockage persistant des tâches</span>
+            </div>
+            <div class="layer-note">Exemple To-Do List : une requête descend couche par couche.</div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">JSON</span>
+        <p class="lead">JSON est le plus courant en API web moderne, mais XML reste encore très utilisé dans certains systèmes d’entreprise.</p>
+        <h2>JSON est un format d’échange très courant</h2>
+        <ul>
+          <li>Il est lisible par un humain.</li>
+          <li>Il est simple à parser pour les programmes.</li>
+          <li>REST utilise souvent JSON dans les réponses.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">{
+  "id": 1,
+  "title": "Faire les courses",
+  "done": false
+}</div>
+        <div class="cards-2">
+          <div class="card"><strong>JSON</strong>très courant pour les API REST modernes</div>
+          <div class="card"><strong>XML</strong>encore fréquent dans des outils anciens ou des échanges normalisés</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">REST</span>
+        <h2>Une API REST organise les ressources</h2>
+        <ul>
+          <li>On manipule des ressources identifiées par des URL.</li>
+          <li>Ici, la ressource principale est <strong>Task</strong>.</li>
+          <li>On utilise les méthodes HTTP pour agir sur cette ressource.</li>
+          <li>L’idée est surtout d’avoir des routes cohérentes.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Collection</strong><code>/tasks</code></div>
+          <div class="card"><strong>Élément</strong><code>/tasks/{id}</code></div>
+          <div class="card"><strong>Action claire</strong>méthode HTTP</div>
+          <div class="card"><strong>Format courant</strong>JSON</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Checkpoint</span>
+        <h2>Résumé de la partie API</h2>
+        <ul>
+          <li>Une API relie un client à un système.</li>
+          <li>HTTP transporte les demandes.</li>
+          <li>JSON transporte souvent les données.</li>
+          <li>REST organise les routes autour des ressources.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Mini quiz</strong>
+          Si je veux marquer une tâche comme terminée, quelle route et quelle méthode choisiriez-vous ?
+        </div>
+        <div class="tags">
+          <span class="tag">Transition vers Spring</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Partie 2</span>
+        <h2>Pourquoi utiliser Spring et Spring Boot</h2>
+        <ul>
+          <li>Créer une API Java “à la main” demande beaucoup de plomberie technique.</li>
+          <li>Spring apporte des outils pour structurer l’application.</li>
+          <li>Spring Boot simplifie le démarrage du projet.</li>
+          <li>Le développeur se concentre davantage sur le besoin métier.</li>
+          <li>Spring est extremement utilise en entreprise, donc l'apprendre est un choix tres rentable.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Spring</strong>framework large et modulaire</div>
+          <div class="card"><strong>Spring Boot</strong>démarrage rapide et configuration simplifiée</div>
+          <div class="card"><strong>Pourquoi l'apprendre</strong>tres present sur le marche et dans les projets Java</div>
+          <div class="card"><strong>Alternative connue</strong>C# / .NET pour construire aussi des API modernes</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Framework</span>
+        <h2>Un framework donne une structure prête à l’emploi</h2>
+        <ul>
+          <li>Il propose des conventions.</li>
+          <li>Il évite de réinventer des briques communes.</li>
+          <li>Il aide à brancher facilement web, base et sécurité.</li>
+          <li>Il standardise la façon de coder en équipe.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Analogie</strong>
+          Un framework ressemble à un chantier avec déjà les fondations, les outils et le plan général.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Structure</span>
+        <h2>Controller, Service, Repository : trois rôles simples</h2>
+        <ul>
+          <li>Le <strong>Controller</strong> reçoit la requête HTTP.</li>
+          <li>Le <strong>Service</strong> porte la logique métier.</li>
+          <li>Le <strong>Repository</strong> gère l’accès aux données.</li>
+          <li>Cette séparation rend le code plus lisible.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" aria-label="Schéma controller service repository">
+            <rect x="26" y="116" width="110" height="66" rx="18" fill="#daf3ef" stroke="#0f766e" stroke-width="3"/>
+            <text x="81" y="145" text-anchor="middle" font-size="19" font-weight="700" fill="#0f766e">Controller</text>
+            <text x="81" y="168" text-anchor="middle" font-size="13" fill="#0f766e">reçoit HTTP</text>
+
+            <rect x="164" y="98" width="120" height="102" rx="22" fill="#fde8d8" stroke="#c2410c" stroke-width="3"/>
+            <text x="224" y="138" text-anchor="middle" font-size="20" font-weight="700" fill="#c2410c">Service</text>
+            <text x="224" y="161" text-anchor="middle" font-size="13" fill="#1f2937">applique les</text>
+            <text x="224" y="178" text-anchor="middle" font-size="13" fill="#1f2937">règles métier</text>
+
+            <rect x="316" y="116" width="120" height="66" rx="18" fill="#fff7ea" stroke="#c2410c" stroke-width="3"/>
+            <text x="376" y="145" text-anchor="middle" font-size="19" font-weight="700" fill="#c2410c">Repository</text>
+            <text x="376" y="168" text-anchor="middle" font-size="13" fill="#c2410c">accès données</text>
+
+            <rect x="460" y="116" width="76" height="66" rx="18" fill="#ffffff" stroke="#334155" stroke-width="3"/>
+            <text x="498" y="144" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">Base</text>
+            <text x="498" y="167" text-anchor="middle" font-size="12" fill="#334155">SQL</text>
+
+            <line x1="136" y1="149" x2="164" y2="149" stroke="#0f766e" stroke-width="4"/>
+            <polygon points="164,149 152,143 152,155" fill="#0f766e"/>
+
+            <line x1="284" y1="149" x2="316" y2="149" stroke="#c2410c" stroke-width="4"/>
+            <polygon points="316,149 304,143 304,155" fill="#c2410c"/>
+
+            <line x1="436" y1="149" x2="460" y2="149" stroke="#334155" stroke-width="4"/>
+            <polygon points="460,149 448,143 448,155" fill="#334155"/>
+
+            <text x="280" y="248" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2937">Une responsabilité claire par couche</text>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Controller</span>
+        <h2>Le controller parle HTTP</h2>
+        <ul>
+          <li>Il écoute une URL.</li>
+          <li>Il lit les paramètres, le corps et l’identifiant.</li>
+          <li>Il appelle le service approprié.</li>
+          <li>Il renvoie une réponse HTTP.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">@RestController
+@RequestMapping("/tasks")
+class TaskController {
+    @GetMapping
+    List<Task> all() { ... }
+}</div>
+        <div class="question">
+          <strong>Question</strong>
+          Pourquoi le controller ne devrait-il pas contenir toute la logique métier ?
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Service</span>
+        <h2>Le service porte les règles métier</h2>
+        <ul>
+          <li>Il décide ce qu’il faut faire.</li>
+          <li>Il vérifie les conditions métier.</li>
+          <li>Il orchestre les appels nécessaires.</li>
+          <li>Dans la To-Do List : refuser un titre vide, par exemple.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">@Service
+class TaskService {
+    private final TaskRepository repository;
+
+    List<Task> findAll() {
+        return repository.findAll();
+    }
+
+    Task create(Task task) {
+        return repository.save(task);
+    }
+}</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Repository</span>
+        <h2>Le repository parle à la base de données</h2>
+        <ul>
+          <li>Il sauvegarde les tâches.</li>
+          <li>Il relit les tâches existantes.</li>
+          <li>Il masque les détails techniques d’accès aux données.</li>
+          <li>Avec Spring Data, beaucoup de code est évité.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">@Repository
+interface TaskRepository extends JpaRepository<TaskEntity, Long> {
+}</div>
+        <div class="cards-2">
+          <div class="card"><strong>@Entity</strong>objet stocké</div>
+          <div class="card"><strong>@Id</strong>identifiant unique</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Annotations</span>
+        <h2>Les annotations Spring principales</h2>
+        <ul>
+          <li><code>@RestController</code>, <code>@RequestMapping</code>, <code>@GetMapping</code>, <code>@PostMapping</code></li>
+          <li><code>@Service</code> pour la logique métier.</li>
+          <li><code>@Repository</code> pour l’accès aux données.</li>
+          <li><code>@Entity</code> et <code>@Id</code> pour le stockage.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Web</strong>controller et routes</div>
+          <div class="card"><strong>Métier</strong>service</div>
+          <div class="card"><strong>Données</strong>repository</div>
+          <div class="card"><strong>Persistance</strong>entity et id</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Annotations</span>
+        <h2>Lecture guidée des annotations Spring</h2>
+        <ul>
+          <li><code>@RestController</code> et les mappings concernent le web.</li>
+          <li><code>@Service</code> concerne la logique métier.</li>
+          <li><code>@Repository</code> et <code>@Entity</code> concernent les données.</li>
+          <li>Chaque annotation sert donc à placer une responsabilité claire.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Web</strong>controller et routes</div>
+          <div class="card"><strong>Métier</strong>service</div>
+          <div class="card"><strong>Données</strong>repository</div>
+          <div class="card"><strong>Persistance</strong>entity et id</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Injection</span>
+        <h2>Injection de dépendances et IoC</h2>
+        <ul>
+          <li>Une classe utilise d’autres classes pour travailler.</li>
+          <li>Spring crée ces objets et les relie.</li>
+          <li>C’est l’idée d’<strong>Inversion of Control</strong>.</li>
+          <li>On préfère souvent l’injection par constructeur.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">class TaskController {
+    private final TaskService service;
+
+    TaskController(TaskService service) {
+        this.service = service;
+    }
+}</div>
+        <div class="question">
+          <strong>Explication simple</strong>
+          Au lieu de fabriquer ses dépendances seul, le controller les reçoit déjà prêtes.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Injection</span>
+        <h2>IoC : qui construit les objets ?</h2>
+        <ul>
+          <li>Sans framework, une classe peut créer elle-même ses dépendances.</li>
+          <li>Avec Spring, le conteneur crée et relie les objets.</li>
+          <li>C’est cela qu’on appelle l’Inversion of Control.</li>
+          <li>Le développeur décrit les briques, Spring gère l’assemblage.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">// Sans IoC
+class TaskController {
+    private final TaskService service = new TaskService();
+}
+
+// Avec IoC / Spring
+class TaskController {
+    private final TaskService service;
+
+    TaskController(TaskService service) {
+        this.service = service;
+    }
+}</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Cycle</span>
+        <h2>Le cycle complet d’une requête</h2>
+        <ul>
+          <li>Le client appelle <code>POST /tasks</code>.</li>
+          <li>Le controller lit la requête.</li>
+          <li>Le service applique les règles.</li>
+          <li>Le repository sauvegarde.</li>
+          <li>La réponse JSON revient au client.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 340" xmlns="http://www.w3.org/2000/svg" aria-label="Cycle complet d'une requete">
+            <rect x="40" y="40" width="100" height="52" rx="16" fill="#daf3ef" stroke="#0f766e"/>
+            <text x="90" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#0f766e">Client</text>
+            <rect x="180" y="40" width="110" height="52" rx="16" fill="#fde8d8" stroke="#c2410c"/>
+            <text x="235" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#c2410c">Controller</text>
+            <rect x="330" y="40" width="100" height="52" rx="16" fill="#fff5e9" stroke="#c2410c"/>
+            <text x="380" y="72" text-anchor="middle" font-size="18" font-weight="700" fill="#c2410c">Service</text>
+            <rect x="220" y="146" width="120" height="52" rx="16" fill="#fff" stroke="#334155"/>
+            <text x="280" y="178" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">Repository</text>
+            <rect x="220" y="250" width="120" height="52" rx="16" fill="#fff" stroke="#334155"/>
+            <text x="280" y="282" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">Base</text>
+            <line x1="140" y1="66" x2="180" y2="66" stroke="#0f766e" stroke-width="4"/>
+            <line x1="290" y1="66" x2="330" y2="66" stroke="#c2410c" stroke-width="4"/>
+            <line x1="380" y1="92" x2="300" y2="146" stroke="#c2410c" stroke-width="4"/>
+            <line x1="280" y1="198" x2="280" y2="250" stroke="#334155" stroke-width="4"/>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Cycle</span>
+        <h2>Le cycle complet d’une requête : le retour</h2>
+        <ul>
+          <li>La base renvoie les données sauvegardées.</li>
+          <li>Le repository renvoie le résultat au service.</li>
+          <li>Le service prépare la réponse utile.</li>
+          <li>Le controller renvoie une réponse HTTP en JSON.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">HTTP 201 Created
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "Faire les courses",
+  "done": false
+}</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Exemple</span>
+        <h2>Exemple court de To-Do List en Spring Boot</h2>
+        <ul>
+          <li>Le code doit rester court pour comprendre les rôles.</li>
+          <li>On ne cherche pas ici un projet complet.</li>
+          <li>Le but est de voir comment les pièces s’appellent.</li>
+          <li>Le controller reçoit la requête et délègue.</li>
+          <li>Le service applique la logique et appelle le repository.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">// Controller
+@PostMapping
+Task create(@RequestBody TaskInput input) {
+    return service.create(input.title());
+}
+
+// Service
+Task create(String title) {
+    TaskEntity entity = repository.save(new TaskEntity(title, false));
+    return new Task(entity.getId(), entity.getTitle(), entity.isDone());
+}</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Checkpoint</span>
+        <h2>Résumé de la partie Spring Boot</h2>
+        <ul>
+          <li>Spring structure l’application.</li>
+          <li>Spring Boot simplifie le démarrage et la configuration.</li>
+          <li>Controller, Service et Repository ont des rôles différents.</li>
+          <li>Une requête suit un trajet clair dans le code.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Mini quiz</strong>
+          Si la route fonctionne mais que la logique métier est fausse, dans quelle couche faut-il chercher d’abord ?
+        </div>
+        <div class="tags">
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Pause</span>
+        <h2>Pause 10 à 15 minutes</h2>
+        <ul>
+          <li>Reprendre ensuite avec la vue “système”.</li>
+          <li>Jusqu’ici, nous avons compris comment construire une API simple.</li>
+          <li>Ensuite, nous verrons comment organiser une application complète.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" aria-label="Pause">
+            <circle cx="280" cy="130" r="82" fill="#fde8d8" stroke="#c2410c" stroke-width="4"/>
+            <text x="280" y="122" text-anchor="middle" font-size="34" font-weight="700" fill="#c2410c">Pause</text>
+            <text x="280" y="158" text-anchor="middle" font-size="18" fill="#1f2937">10 a 15 min</text>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Partie 3</span>
+        <h2>Architecture globale : penser toute l’application</h2>
+        <ul>
+          <li>Ici, on ne parle plus d’une classe, mais du système complet.</li>
+          <li>Une même API peut vivre dans un monolithe ou dans des microservices.</li>
+          <li>Le bon choix dépend du contexte.</li>
+          <li>La To-Do List sert d’exemple simple pour comparer.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Utilisateurs</strong>combien de personnes vont l’utiliser et avec quelle charge ?</div>
+          <div class="card"><strong>Usage</strong>à quoi va servir l’application et jusqu’où va-t-elle grandir ?</div>
+          <div class="card"><strong>Maintenance</strong>combien d’équipes vont la maintenir et la faire évoluer ?</div>
+          <div class="card"><strong>Évolution</strong>faut-il déployer un seul bloc ou plusieurs parties indépendantes ?</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Monolithe</span>
+        <h2>Monolithe : une seule application principale</h2>
+        <ul>
+          <li>Le code de l’API est dans un seul projet.</li>
+          <li>Le déploiement se fait souvent en un seul bloc.</li>
+          <li>C’est simple à démarrer.</li>
+          <li>C’est souvent un bon premier choix pour une To-Do List.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" aria-label="Monolithe">
+            <rect x="90" y="50" width="380" height="160" rx="26" fill="#fde8d8" stroke="#c2410c" stroke-width="4"/>
+            <text x="280" y="95" text-anchor="middle" font-size="28" font-weight="700" fill="#c2410c">Monolithe To-Do</text>
+            <text x="280" y="130" text-anchor="middle" font-size="18" fill="#1f2937">API + logique metier + acces donnees</text>
+            <text x="280" y="162" text-anchor="middle" font-size="18" fill="#1f2937">dans la meme application</text>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Microservices</span>
+        <h2>Microservices : plusieurs petits services spécialisés</h2>
+        <ul>
+          <li>Chaque service porte une responsabilité plus ciblée.</li>
+          <li>Les services communiquent entre eux.</li>
+          <li>Cela apporte plus de souplesse, mais plus de complexité.</li>
+          <li>Pour une petite To-Do List, c’est souvent trop tôt.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-3">
+          <div class="card"><strong>Task service</strong>gérer les tâches</div>
+          <div class="card"><strong>User service</strong>gérer les comptes</div>
+          <div class="card"><strong>Notification service</strong>rappels et emails</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Microservices</span>
+        <h2>Comment fonctionne une architecture microservices</h2>
+        <ul>
+          <li>Chaque service possède une responsabilité métier bien délimitée.</li>
+          <li>Chaque service expose souvent sa propre API.</li>
+          <li>Les services se parlent via HTTP, messages ou événements.</li>
+          <li>Chaque service peut être déployé séparément.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg" aria-label="Fonctionnement d'une architecture microservices">
+            <rect x="32" y="126" width="104" height="62" rx="18" fill="#daf3ef" stroke="#0f766e" stroke-width="3"/>
+            <text x="84" y="153" text-anchor="middle" font-size="18" font-weight="700" fill="#0f766e">Client</text>
+            <text x="84" y="175" text-anchor="middle" font-size="13" fill="#0f766e">web / mobile</text>
+
+            <rect x="174" y="126" width="96" height="62" rx="18" fill="#fde8d8" stroke="#c2410c" stroke-width="3"/>
+            <text x="222" y="153" text-anchor="middle" font-size="18" font-weight="700" fill="#c2410c">API</text>
+            <text x="222" y="175" text-anchor="middle" font-size="13" fill="#c2410c">gateway</text>
+
+            <rect x="318" y="48" width="112" height="58" rx="18" fill="#fff7ea" stroke="#c2410c" stroke-width="3"/>
+            <text x="374" y="72" text-anchor="middle" font-size="16" font-weight="700" fill="#c2410c">Task service</text>
+            <text x="374" y="91" text-anchor="middle" font-size="12" fill="#1f2937">taches</text>
+
+            <rect x="318" y="132" width="112" height="58" rx="18" fill="#fff7ea" stroke="#c2410c" stroke-width="3"/>
+            <text x="374" y="156" text-anchor="middle" font-size="16" font-weight="700" fill="#c2410c">User service</text>
+            <text x="374" y="175" text-anchor="middle" font-size="12" fill="#1f2937">comptes</text>
+
+            <rect x="318" y="216" width="112" height="58" rx="18" fill="#fff7ea" stroke="#c2410c" stroke-width="3"/>
+            <text x="374" y="240" text-anchor="middle" font-size="16" font-weight="700" fill="#c2410c">Notification</text>
+            <text x="374" y="259" text-anchor="middle" font-size="12" fill="#1f2937">emails / rappels</text>
+
+            <line x1="136" y1="157" x2="174" y2="157" stroke="#0f766e" stroke-width="4"/>
+            <polygon points="174,157 162,151 162,163" fill="#0f766e"/>
+
+            <line x1="270" y1="157" x2="318" y2="77" stroke="#c2410c" stroke-width="4"/>
+            <line x1="270" y1="157" x2="318" y2="161" stroke="#c2410c" stroke-width="4"/>
+            <line x1="270" y1="157" x2="318" y2="245" stroke="#c2410c" stroke-width="4"/>
+
+            <text x="280" y="298" text-anchor="middle" font-size="20" font-weight="700" fill="#1f2937">Plusieurs services, chacun centré sur un besoin</text>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Microservices</span>
+        <h2>Comment construire une architecture microservices</h2>
+        <ul>
+          <li>Commencer par découper le métier en domaines simples.</li>
+          <li>Donner à chaque service une responsabilité claire.</li>
+          <li>Définir les échanges entre services : API, événements, messages.</li>
+          <li>Prévoir le déploiement, la supervision et la maintenance.</li>
+          <li>Éviter de découper trop tôt ou trop finement.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>1. Découper</strong>tâches, utilisateurs, notifications</div>
+          <div class="card"><strong>2. Contractualiser</strong>routes et messages clairs</div>
+          <div class="card"><strong>3. Isoler</strong>chaque service et son cycle de vie</div>
+          <div class="card"><strong>4. Surveiller</strong>logs, erreurs, disponibilité</div>
+        </div>
+        <div class="question">
+          <strong>Réflexe utile</strong>
+          On ne construit pas des microservices pour faire moderne, mais pour répondre à un vrai besoin d’organisation ou de scalabilité.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Comparaison</span>
+        <h2>Monolithe vs microservices</h2>
+        <ul>
+          <li>Le monolithe est plus simple à lancer et à déployer.</li>
+          <li>Les microservices isolent mieux certaines responsabilités.</li>
+          <li>Les microservices coûtent plus cher en coordination.</li>
+          <li>Le contexte réel doit guider le choix.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="table-box">
+          <table>
+            <thead>
+              <tr>
+                <th>Critère</th>
+                <th>Monolithe</th>
+                <th>Microservices</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Démarrage</td>
+                <td>Simple</td>
+                <td>Plus complexe</td>
+              </tr>
+              <tr>
+                <td>Déploiement</td>
+                <td>Un seul bloc</td>
+                <td>Plusieurs blocs</td>
+              </tr>
+              <tr>
+                <td>Communication</td>
+                <td>Interne</td>
+                <td>Réseau entre services</td>
+              </tr>
+              <tr>
+                <td>Bon contexte</td>
+                <td>Petit à moyen projet</td>
+                <td>Gros système évolutif</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Comparaison</span>
+        <h2>Monolithe vs microservices : les coûts</h2>
+        <ul>
+          <li>Les microservices ajoutent de la communication réseau.</li>
+          <li>Ils multiplient souvent les déploiements et la surveillance.</li>
+          <li>Le monolithe peut devenir plus lourd quand le produit grossit.</li>
+          <li>Le contexte réel doit guider le choix final.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Signal pratique</strong>
+          si le projet est petit et l’équipe réduite, le monolithe est souvent le meilleur point de départ.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Choix</span>
+        <h2>Exemple To-Do List : que choisir ?</h2>
+        <ul>
+          <li>Au début : un monolithe Spring Boot suffit largement.</li>
+          <li>Si l’application grossit beaucoup, on peut découper plus tard.</li>
+          <li>Le besoin métier doit justifier la complexité.</li>
+          <li>“Microservices” n’est pas un objectif en soi.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Question au public</strong>
+          Pour une seule équipe et une seule fonctionnalité principale, quel choix paraît le plus raisonnable ?
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Checkpoint</span>
+        <h2>Résumé des architectures globales</h2>
+        <ul>
+          <li>Le monolithe est souvent le plus simple pour démarrer.</li>
+          <li>Les microservices offrent plus de découpage, mais coûtent plus cher.</li>
+          <li>La To-Do List n’a pas besoin de microservices au départ.</li>
+          <li>Le contexte doit toujours piloter la décision.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="tags">
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Partie 4</span>
+        <h2>Architecture interne : organiser le code dans l’API</h2>
+        <ul>
+          <li>Ici, on revient à l’intérieur du projet.</li>
+          <li>Deux grandes approches seront comparées.</li>
+          <li>D’abord l’architecture Spring classique.</li>
+          <li>Puis l’architecture hexagonale.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Question</strong>comment ranger les classes ?</div>
+          <div class="card"><strong>Question</strong>où mettre la logique métier ?</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Classique</span>
+        <h2>L’architecture Spring classique est simple à comprendre</h2>
+        <ul>
+          <li>On sépare souvent par couches : controller, service, repository.</li>
+          <li>C’est cohérent avec beaucoup de tutoriels Spring.</li>
+          <li>Elle fonctionne bien sur des projets petits à moyens.</li>
+          <li>Elle est facile à lire pour débuter.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">todo
+|-- controller
+|-- service
+|-- repository
+`-- entity</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Limites</span>
+        <h2>La version classique a aussi des limites</h2>
+        <ul>
+          <li>La logique métier peut glisser dans le controller ou le repository.</li>
+          <li>Les dépendances techniques peuvent envahir le cœur du code.</li>
+          <li>Les tests métier deviennent parfois plus lourds.</li>
+          <li>Le changement d’outil technique peut être coûteux.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Symptôme fréquent</strong>
+          un controller qui valide tout, construit tout et parle déjà à la base
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Hexagonal</span>
+        <h2>L’idée de l’architecture hexagonale</h2>
+        <ul>
+          <li>Le métier est placé au centre.</li>
+          <li>La technique reste autour du métier.</li>
+          <li>Les interactions passent par des ports.</li>
+          <li>Les éléments techniques deviennent des adaptateurs.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 340" xmlns="http://www.w3.org/2000/svg" aria-label="Architecture hexagonale">
+            <polygon points="280,30 410,105 410,235 280,310 150,235 150,105" fill="#fde8d8" stroke="#c2410c" stroke-width="4"/>
+            <text x="280" y="160" text-anchor="middle" font-size="28" font-weight="700" fill="#1f2937">Metier</text>
+            <text x="280" y="190" text-anchor="middle" font-size="16" fill="#1f2937">Task rules + use cases</text>
+            <rect x="30" y="130" width="92" height="60" rx="16" fill="#daf3ef" stroke="#0f766e"/>
+            <text x="76" y="166" text-anchor="middle" font-size="18" font-weight="700" fill="#0f766e">REST</text>
+            <rect x="438" y="90" width="92" height="60" rx="16" fill="#fff" stroke="#334155"/>
+            <text x="484" y="126" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">DB</text>
+            <rect x="438" y="210" width="92" height="60" rx="16" fill="#fff" stroke="#334155"/>
+            <text x="484" y="246" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">Mail</text>
+          </svg>
+        </div>
+        <div class="question">
+          <strong>Ressource complémentaire</strong>
+          <a href="https://www.youtube.com/watch?v=MNXcuIGmYQw" target="_blank" rel="noopener noreferrer">Voir la vidéo sur l’architecture hexagonale</a>
+          <a href="https://www.youtube.com/watch?v=JubdZIdLQ4M&list=LL&index=1" target="_blank" rel="noopener noreferrer">Voir la vidéo sur l’architecture hexagonale</a>
+		</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Ports</span>
+        <h2>Ports et adaptateurs, version simple</h2>
+        <ul>
+          <li>Un port décrit un besoin ou une capacité.</li>
+          <li>Un adaptateur entrant déclenche l’action, par exemple le REST.</li>
+          <li>Un adaptateur sortant réalise un besoin technique, par exemple JPA.</li>
+          <li>Le métier dépend d’interfaces, pas d’outils concrets.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">public interface CreateTaskUseCase {
+    Task handle(CreateTaskCommand command);
+}
+
+public interface SaveTaskPort {
+    Task save(Task task);
+}</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Hexagonal</span>
+        <h2>Comment lire le schéma hexagonal</h2>
+        <ul>
+          <li>Le REST est un point d’entrée.</li>
+          <li>Le métier reste au centre de la décision.</li>
+          <li>La base ou le mail sont des sorties techniques.</li>
+          <li>Le cœur métier reste indépendant de ces outils.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Entrée</strong>REST</div>
+          <div class="card"><strong>Centre</strong>métier</div>
+          <div class="card"><strong>Sortie</strong>base</div>
+          <div class="card"><strong>Autre sortie</strong>service externe</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Exemple</span>
+        <h2>To-Do List en version hexagonale</h2>
+        <ul>
+          <li>Le controller appelle un use case.</li>
+          <li>Le use case applique les règles métier.</li>
+          <li>Le port sortant demande une sauvegarde.</li>
+          <li>L’adaptateur JPA réalise cette sauvegarde.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">todo
+|-- domain
+|-- application
+|-- infrastructure/web
+`-- infrastructure/persistence</div>
+        <div class="mermaid-box">flowchart LR
+Ctrl[TaskController] --> UseCase[CreateTaskService]
+UseCase --> Port[(SaveTaskPort)]
+Port --> Jpa[TaskJpaAdapter]</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Exemple</span>
+        <h2>Lire le flux hexagonal de la To-Do List</h2>
+        <ul>
+          <li>Le controller reste à l’entrée.</li>
+          <li>Le use case porte la décision métier.</li>
+          <li>Le port exprime un besoin sans imposer la technologie.</li>
+          <li>L’adaptateur JPA branche ce besoin sur la base.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Point de repère oral</strong>
+          Ce slide sert à refaire le trajet complet, mais cette fois avec le vocabulaire hexagonal.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Autres approches</span>
+        <h2>Aperçu rapide : Clean, Onion, CQRS, Event-driven</h2>
+        <ul>
+          <li>Clean et Onion gardent aussi le métier au centre.</li>
+          <li>CQRS sépare souvent lecture et écriture.</li>
+          <li>Event-driven fait circuler des événements entre composants.</li>
+          <li>Ces approches répondent à des besoins plus avancés.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-4">
+          <div class="card"><strong>Clean</strong>couches centrées sur le métier</div>
+          <div class="card"><strong>Onion</strong>cercles concentriques</div>
+          <div class="card"><strong>CQRS</strong>lecture et écriture séparées</div>
+          <div class="card"><strong>Event-driven</strong>réaction à des événements</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Autres approches</span>
+        <h2>À quoi servent ces architectures plus avancées ?</h2>
+        <ul>
+          <li>Clean et Onion protègent encore davantage le cœur métier.</li>
+          <li>CQRS aide quand lecture et écriture ont des besoins très différents.</li>
+          <li>Event-driven aide quand plusieurs composants réagissent à des événements.</li>
+          <li>Pour une To-Do List simple, ce sont surtout des pistes d’ouverture.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Clean / Onion</strong>métier protégé</div>
+          <div class="card"><strong>CQRS</strong>lecture et écriture séparées</div>
+          <div class="card"><strong>Event-driven</strong>réactions à des événements</div>
+          <div class="card"><strong>Niveau</strong>plus avancé</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Erreurs</span>
+        <h2>Erreurs classiques à éviter</h2>
+        <ul>
+          <li>Mettre toute la logique dans le controller.</li>
+          <li>Mélanger règles métier et détails SQL partout.</li>
+          <li>Choisir microservices ou hexagonal “par mode”.</li>
+          <li>Écrire trop de couches pour un besoin trop simple.</li>
+          <li>Oublier de nommer clairement les responsabilités.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Réflexe utile</strong>
+          avant d’ajouter de l’architecture, demander : quel problème concret est-ce que je résous ?
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>Sécurité et erreurs : une API ne renvoie pas juste “ça marche”</h2>
+        <ul>
+          <li>Une API doit souvent vérifier qui appelle et ce qu’il a le droit de faire.</li>
+          <li>On parle alors d’authentification, d’autorisation et parfois de rôles.</li>
+          <li>Les entrées doivent aussi être validées avant de traiter la requête.</li>
+          <li>Les erreurs doivent être claires : `400`, `401`, `403`, `404`, `500`.</li>
+          <li>Une réponse d’erreur cohérente aide autant les développeurs que les clients.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "error": "TASK_NOT_FOUND",
+  "message": "La tache 42 n'existe pas"
+}</div>
+        <div class="cards-2">
+          <div class="card"><strong>400</strong>entrée invalide</div>
+          <div class="card"><strong>401</strong>non connecté</div>
+          <div class="card"><strong>403</strong>connecté mais interdit</div>
+          <div class="card"><strong>404</strong>ressource absente</div>
+          <div class="card"><strong>500</strong>erreur serveur</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>Authentification, autorisation, rôles : trois idées différentes</h2>
+        <ul>
+          <li><strong>Authentification</strong> : qui es-tu ?</li>
+          <li><strong>Autorisation</strong> : as-tu le droit de faire cette action ?</li>
+          <li><strong>Rôles</strong> : admin, utilisateur simple, manager, etc.</li>
+          <li>Une API réelle vérifie souvent ces trois dimensions en même temps.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Exemple</strong>voir ses tâches</div>
+          <div class="card"><strong>Exemple</strong>supprimer la tâche d’un autre</div>
+          <div class="card"><strong>Question 1</strong>qui appelle ?</div>
+          <div class="card"><strong>Question 2</strong>que peut-il faire ?</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>Une bonne erreur d’API doit aider à comprendre vite</h2>
+        <ul>
+          <li>Le code HTTP donne une catégorie d’erreur.</li>
+          <li>Le corps de réponse donne un message exploitable.</li>
+          <li>Le client doit comprendre s’il doit corriger sa requête ou réessayer plus tard.</li>
+          <li>Une erreur floue ralentit le debug et la maintenance.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">{
+  "error": "VALIDATION_ERROR",
+  "message": "Le titre est obligatoire",
+  "field": "title"
+}</div>
+        <div class="question">
+          <strong>Réflexe utile</strong>
+          une API ne doit pas seulement échouer, elle doit échouer proprement.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>Documentation et versioning rendent l’API maintenable</h2>
+        <ul>
+          <li>Une API utile doit être facile à comprendre pour ses consommateurs.</li>
+          <li>Swagger / OpenAPI servent à décrire les routes, paramètres, formats et erreurs.</li>
+          <li>La documentation sert aussi de contrat entre backend et frontend.</li>
+          <li>Quand l’API évolue, il faut éviter de casser les anciens clients.</li>
+          <li>Le versioning aide à faire évoluer l’API plus proprement.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Documentation</strong>routes, payloads, réponses</div>
+          <div class="card"><strong>OpenAPI</strong>contrat lisible par humains et outils</div>
+          <div class="card"><strong>Versioning</strong><code>/v1/tasks</code>, puis <code>/v2/tasks</code></div>
+          <div class="card"><strong>Contrat</strong>backend et frontend parlent du même objet</div>
+        </div>
+        <div class="question">
+          <strong>Réflexe utile</strong>
+          Une API non documentée devient vite difficile à maintenir, même si le code est propre.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>Documenter une API, ce n’est pas “faire joli”</h2>
+        <ul>
+          <li>La documentation sert aux développeurs frontend, mobile, partenaires ou autres équipes backend.</li>
+          <li>Elle décrit les routes, les champs attendus et les erreurs possibles.</li>
+          <li>Elle réduit les malentendus entre équipes.</li>
+          <li>Elle devient vite indispensable quand l’API grandit.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Route</strong><code>POST /tasks</code></div>
+          <div class="card"><strong>Entrée</strong>titre, done</div>
+          <div class="card"><strong>Sortie</strong>objet créé</div>
+          <div class="card"><strong>Erreurs</strong>400, 404, 500</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>Le versioning sert à faire évoluer sans casser</h2>
+        <ul>
+          <li>Un client mobile ou frontend peut dépendre d’un format précis.</li>
+          <li>Changer brutalement l’API peut casser ces clients.</li>
+          <li>Versionner permet d’introduire une nouvelle version progressivement.</li>
+          <li>Il faut donc penser compatibilité dès qu’une API a plusieurs consommateurs.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code dark">/v1/tasks
+/v2/tasks
+
+v1 -> ancien format
+v2 -> nouveau format</div>
+        <div class="question">
+          <strong>Idée clé</strong>
+          plus une API est partagée, plus son évolution doit être contrôlée.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>En production, une API vit avec logs, monitoring, gateway et déploiement</h2>
+        <ul>
+          <li>Les logs servent à comprendre ce qu’il s’est passé sur une requête.</li>
+          <li>Le monitoring sert à voir si l’API est lente, cassée ou saturée.</li>
+          <li>Une API Gateway peut centraliser l’entrée, la sécurité et certaines règles.</li>
+          <li>Le déploiement doit être reproductible pour éviter les surprises.</li>
+          <li>En pratique, l’architecture continue donc au-delà du code métier.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg" aria-label="API en production">
+            <rect x="34" y="118" width="96" height="58" rx="18" fill="#daf3ef" stroke="#0f766e" stroke-width="3"/>
+            <text x="82" y="152" text-anchor="middle" font-size="18" font-weight="700" fill="#0f766e">Client</text>
+
+            <rect x="170" y="118" width="112" height="58" rx="18" fill="#fde8d8" stroke="#c2410c" stroke-width="3"/>
+            <text x="226" y="152" text-anchor="middle" font-size="18" font-weight="700" fill="#c2410c">Gateway</text>
+
+            <rect x="322" y="118" width="104" height="58" rx="18" fill="#fff7ea" stroke="#c2410c" stroke-width="3"/>
+            <text x="374" y="152" text-anchor="middle" font-size="18" font-weight="700" fill="#c2410c">API</text>
+
+            <rect x="444" y="52" width="88" height="50" rx="16" fill="#ffffff" stroke="#334155" stroke-width="3"/>
+            <text x="488" y="82" text-anchor="middle" font-size="15" font-weight="700" fill="#334155">Logs</text>
+
+            <rect x="444" y="124" width="88" height="50" rx="16" fill="#ffffff" stroke="#334155" stroke-width="3"/>
+            <text x="488" y="154" text-anchor="middle" font-size="15" font-weight="700" fill="#334155">Monitoring</text>
+
+            <rect x="444" y="196" width="88" height="50" rx="16" fill="#ffffff" stroke="#334155" stroke-width="3"/>
+            <text x="488" y="226" text-anchor="middle" font-size="15" font-weight="700" fill="#334155">Deploy</text>
+
+            <line x1="130" y1="147" x2="170" y2="147" stroke="#0f766e" stroke-width="4"/>
+            <polygon points="170,147 158,141 158,153" fill="#0f766e"/>
+            <line x1="282" y1="147" x2="322" y2="147" stroke="#c2410c" stroke-width="4"/>
+            <polygon points="322,147 310,141 310,153" fill="#c2410c"/>
+            <line x1="426" y1="147" x2="444" y2="147" stroke="#334155" stroke-width="4"/>
+
+            <text x="280" y="268" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Une API en production doit aussi être</text>
+            <text x="280" y="290" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">observable et déployable</text>
+          </svg>
+        </div>
+        <div class="cards-2">
+          <div class="card"><strong>Logs</strong>traces des requêtes et erreurs</div>
+          <div class="card"><strong>Monitoring</strong>temps de réponse, charge, disponibilité</div>
+          <div class="card"><strong>Gateway</strong>point d’entrée unique</div>
+          <div class="card"><strong>Déploiement</strong>mise en production répétable</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>Logs et monitoring : voir ce qui se passe vraiment</h2>
+        <ul>
+          <li>Les logs racontent le détail d’une requête ou d’une erreur.</li>
+          <li>Le monitoring montre les tendances : lenteur, charge, disponibilité.</li>
+          <li>Les deux sont complémentaires.</li>
+          <li>Sans eux, diagnostiquer un incident devient beaucoup plus difficile.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Logs</strong>quoi s’est passé ?</div>
+          <div class="card"><strong>Monitoring</strong>dans quel état est le système ?</div>
+          <div class="card"><strong>Exemple</strong>temps de réponse qui monte</div>
+          <div class="card"><strong>Exemple</strong>erreurs 500 qui explosent</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">API Réelle</span>
+        <h2>Gateway et déploiement : la vie d’une API dans le système</h2>
+        <ul>
+          <li>La gateway peut centraliser l’entrée, la sécurité et le routage.</li>
+          <li>Elle est surtout utile quand plusieurs services existent.</li>
+          <li>Le déploiement doit être répétable et prévisible.</li>
+          <li>Une bonne architecture d’API pense donc aussi exploitation et livraison.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>Gateway</strong>point d’entrée unique</div>
+          <div class="card"><strong>Routage</strong>envoi vers le bon service</div>
+          <div class="card"><strong>Déploiement</strong>même procédure à chaque fois</div>
+          <div class="card"><strong>But</strong>réduire les surprises en production</div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Conclusion</span>
+        <h2>Le trajet complet d’une requête, du client à la base</h2>
+        <ul>
+          <li>Le client appelle une route HTTP.</li>
+          <li>Le controller reçoit et transmet.</li>
+          <li>Le service ou use case décide.</li>
+          <li>Le repository ou adaptateur persiste.</li>
+          <li>La réponse revient en JSON.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="mermaid-box">flowchart LR
+Client --> HTTP --> Controller --> Service
+Service --> Repository
+Repository --> DB
+DB --> Repository --> Service --> Controller --> JSON</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Choisir</span>
+        <h2>Quand choisir quelle architecture ?</h2>
+        <ul>
+          <li>Monolithe : très bon point de départ.</li>
+          <li>Microservices : si le système et l’organisation le demandent vraiment.</li>
+          <li>Architecture Spring classique : très adaptée pour débuter.</li>
+          <li>Hexagonale : utile quand le métier et l’évolutivité deviennent centraux.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="table-box">
+          <table>
+            <thead>
+              <tr>
+                <th>Besoin</th>
+                <th>Choix souvent pertinent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Petit projet pédagogique</td>
+                <td>Monolithe + architecture classique</td>
+              </tr>
+              <tr>
+                <td>Métier complexe</td>
+                <td>Hexagonale ou proche</td>
+              </tr>
+              <tr>
+                <td>Gros système distribué</td>
+                <td>Microservices si besoin réel</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Résumé final</span>
+        <h2>Ce qu’il faut retenir et la suite</h2>
+        <ul>
+          <li>Une API REST expose des ressources via HTTP et JSON.</li>
+          <li>Spring Boot aide à construire l’API rapidement.</li>
+          <li>L’architecture doit rester au service du besoin.</li>
+          <li>Suite possible : tests, sécurité, Swagger/OpenAPI, déploiement.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Ouverture</strong>
+          Prochaine étape naturelle : documenter l’API, la tester, puis la sécuriser.
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="footer">
+    <div class="controls">
+      <button type="button" id="prev">← Prec.</button>
+      <button type="button" id="next">Suiv. →</button>
+    </div>
+    <div class="counter"><span id="current">1</span> / <span id="total">48</span></div>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const current = document.getElementById("current");
+    const total = document.getElementById("total");
+    const prev = document.getElementById("prev");
+    const next = document.getElementById("next");
+    let index = 0;
+
+    total.textContent = String(slides.length);
+
+    function showSlide(nextIndex) {
+      index = (nextIndex + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+      current.textContent = String(index + 1);
+    }
+
+    prev.addEventListener("click", () => showSlide(index - 1));
+    next.addEventListener("click", () => showSlide(index + 1));
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        showSlide(index + 1);
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        showSlide(index - 1);
+      }
+      if (event.key === "Home") {
+        showSlide(0);
+      }
+      if (event.key === "End") {
+        showSlide(slides.length - 1);
+      }
+    });
+  </script>
+</body>
+</html>
+
+

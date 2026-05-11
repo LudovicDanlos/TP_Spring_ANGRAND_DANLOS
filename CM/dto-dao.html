@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-cours - DTO vs DAO</title>
+  <style>
+    :root {
+      --bg: #f5efe7;
+      --bg-2: #efe3d2;
+      --surface: rgba(255, 250, 243, 0.92);
+      --surface-2: #fffaf4;
+      --ink: #1f2937;
+      --muted: #5f6b7a;
+      --line: rgba(31, 41, 55, 0.1);
+      --amber: #c2410c;
+      --amber-soft: #fde8d8;
+      --teal: #0f766e;
+      --teal-soft: #daf3ef;
+      --slate: #334155;
+      --shadow: 0 24px 80px rgba(57, 39, 20, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(194, 65, 12, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.15), transparent 30%),
+        linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1.15fr 0.9fr;
+      gap: 1.8rem;
+      padding: 4rem 4.5rem 6rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(36px);
+      transition: opacity 220ms ease, transform 220ms ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    .panel,
+    .visual {
+      background: var(--surface);
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .panel {
+      padding: 2.2rem 2.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .visual {
+      padding: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.9rem;
+    }
+
+    .eyebrow,
+    .timebox {
+      display: inline-flex;
+      width: fit-content;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.42rem 0.78rem;
+    }
+
+    .eyebrow {
+      color: var(--amber);
+      background: var(--amber-soft);
+      margin-bottom: 0.7rem;
+    }
+
+    .timebox {
+      color: var(--teal);
+      background: var(--teal-soft);
+      margin-top: 1rem;
+    }
+
+    h1,
+    h2 {
+      margin: 0 0 1rem;
+      line-height: 1.06;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+    }
+
+    h2 {
+      font-size: clamp(2rem, 3.2vw, 3rem);
+    }
+
+    .lead {
+      margin: 0 0 1.2rem;
+      color: var(--muted);
+      font-size: 1.14rem;
+      max-width: 62ch;
+    }
+
+    .accent {
+      color: var(--amber);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      display: grid;
+      gap: 0.7rem;
+      font-size: 1.06rem;
+    }
+
+    li::marker {
+      color: var(--teal);
+    }
+
+    .cards-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .card,
+    .code,
+    .diagram,
+    .table-box,
+    .prompt,
+    .question {
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      padding: 1rem 1.05rem;
+    }
+
+    .card strong,
+    .prompt strong,
+    .question strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--teal);
+    }
+
+    .code {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.9rem;
+      white-space: pre-wrap;
+      line-height: 1.45;
+      background: #1f2937;
+      color: #f8fafc;
+      border-color: #1f2937;
+    }
+
+    .diagram svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .flow {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .flow-step {
+      border-radius: 20px;
+      padding: 0.9rem 1rem;
+      text-align: center;
+      border: 2px solid var(--line);
+      background: #fff;
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 1.08rem;
+    }
+
+    .flow-step span {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .flow-step.dto {
+      background: var(--teal-soft);
+      border-color: rgba(15, 118, 110, 0.35);
+    }
+
+    .flow-step.dao {
+      background: var(--amber-soft);
+      border-color: rgba(194, 65, 12, 0.28);
+    }
+
+    .arrow {
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--slate);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 0.72rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f6ecdd;
+      color: var(--slate);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 0.8rem;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 0.38rem 0.7rem;
+      font-size: 0.9rem;
+    }
+
+    .footer {
+      position: fixed;
+      inset: auto 1.5rem 1.2rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      z-index: 20;
+    }
+
+    .controls,
+    .counter {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-radius: 999px;
+      background: rgba(255, 250, 243, 0.9);
+      border: 1px solid rgba(31, 41, 55, 0.08);
+      box-shadow: 0 12px 32px rgba(31, 41, 55, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .controls {
+      padding: 0.45rem;
+    }
+
+    .counter {
+      padding: 0.72rem 1rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 700;
+      padding: 0.72rem 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--amber);
+      color: #fff;
+    }
+
+    .mini {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 1100px) {
+      body {
+        overflow: auto;
+      }
+
+      .deck {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .slide,
+      .slide.active {
+        position: relative;
+        opacity: 1;
+        pointer-events: auto;
+        transform: none;
+        min-height: 100vh;
+        grid-template-columns: 1fr;
+        padding: 1.4rem 1.1rem 5.6rem;
+      }
+
+      .cards-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .footer {
+        position: sticky;
+        bottom: 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <section class="slide active">
+      <article class="panel">
+        <h1>DTO vs <span class="accent">DAO</span></h1>
+        <p class="lead">Deux noms qui se ressemblent, mais deux responsabilités très différentes dans une API Spring Boot.</p>
+        <div class="tags">
+          <span class="tag">API</span>
+          <span class="tag">Spring Boot</span>
+          <span class="tag">To-Do List</span>
+          <span class="tag">Débutants</span>
+        </div>
+      </article>
+      <aside class="visual">
+        <div class="diagram">
+          <svg viewBox="0 0 560 320" xmlns="http://www.w3.org/2000/svg" aria-label="DTO et DAO dans une API">
+            <rect x="40" y="115" width="105" height="70" rx="18" fill="#daf3ef" stroke="#0f766e"/>
+            <text x="92" y="156" text-anchor="middle" font-size="19" font-weight="700" fill="#0f766e">Client</text>
+            <rect x="205" y="90" width="150" height="120" rx="22" fill="#fffaf4" stroke="#334155"/>
+            <text x="280" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="#334155">API Spring</text>
+            <text x="280" y="162" text-anchor="middle" font-size="16" fill="#0f766e">DTO</text>
+            <text x="280" y="188" text-anchor="middle" font-size="16" fill="#c2410c">DAO</text>
+            <rect x="415" y="115" width="105" height="70" rx="18" fill="#fde8d8" stroke="#c2410c"/>
+            <text x="468" y="156" text-anchor="middle" font-size="18" font-weight="700" fill="#c2410c">Base</text>
+            <path d="M150 150 H198" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+            <path d="M360 150 H408" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+              </marker>
+            </defs>
+          </svg>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Problème concret</span>
+        <h2>Une tâche n’a pas la même forme partout</h2>
+        <ul>
+          <li>Le client veut un JSON simple.</li>
+          <li>Le code métier veut manipuler une tâche.</li>
+          <li>La base veut lire et écrire des données.</li>
+          <li>On évite de tout mélanger dans une seule classe.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code">{
+  "title": "Faire les courses",
+  "done": false
+}</div>
+        <div class="prompt">
+          <strong>Question</strong>
+          Est-ce que ce JSON doit forcément ressembler à la table SQL ?
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">DTO</span>
+        <h2>DTO = objet de transport</h2>
+        <ul>
+          <li>DTO signifie Data Transfer Object.</li>
+          <li>Il sert à transporter des données entre deux couches.</li>
+          <li>Il représente souvent le JSON reçu ou renvoyé.</li>
+          <li>Il ne contient pas la logique d’accès à la base.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code">public record TaskResponseDto(
+    Long id,
+    String title,
+    boolean done
+) {}</div>
+        <div class="question">
+          <strong>Image mentale</strong>
+          Le DTO est le colis envoyé au client : propre, lisible, adapté au destinataire.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">DAO</span>
+        <h2>DAO = objet d’accès aux données</h2>
+        <ul>
+          <li>DAO signifie Data Access Object.</li>
+          <li>Il isole le code qui parle à la base.</li>
+          <li>Il cache les détails SQL ou JPA au reste de l’application.</li>
+          <li>Dans Spring, un Repository joue souvent ce rôle.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code">public interface TaskDao {
+    List&lt;TaskEntity&gt; findAll();
+    TaskEntity save(TaskEntity task);
+    void deleteById(Long id);
+}</div>
+        <div class="question">
+          <strong>Image mentale</strong>
+          Le DAO est le guichet de la base de données.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Ne pas confondre</span>
+        <h2>DTO parle au client, DAO parle à la base</h2>
+        <ul>
+          <li>DTO : format d’entrée ou de sortie de l’API.</li>
+          <li>DAO : opérations de lecture et d’écriture.</li>
+          <li>DTO = données qui circulent.</li>
+          <li>DAO = porte d’accès au stockage.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="table-box">
+          <table>
+            <thead>
+              <tr>
+                <th>DTO</th>
+                <th>DAO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Représente un message</td>
+                <td>Représente un accès aux données</td>
+              </tr>
+              <tr>
+                <td>Proche du JSON</td>
+                <td>Proche de la persistance</td>
+              </tr>
+              <tr>
+                <td>Visible côté API</td>
+                <td>Interne côté serveur</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Dans Spring Boot</span>
+        <h2>Le Repository remplace souvent le DAO manuel</h2>
+        <ul>
+          <li>Avec Spring Data JPA, on écrit peu de code d’accès aux données.</li>
+          <li>L’interface Repository fournit déjà beaucoup de méthodes.</li>
+          <li>Le rôle reste le même : accéder à la base.</li>
+          <li>Le nom DAO est moins fréquent dans les projets Spring modernes.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code">@Repository
+public interface TaskRepository
+    extends JpaRepository&lt;TaskEntity, Long&gt; {
+}</div>
+        <div class="question">
+          <strong>À retenir</strong>
+          Dans un cours Spring, Repository et DAO désignent souvent la même zone de responsabilité.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Exemple complet</span>
+        <h2>Le trajet d’une création de tâche</h2>
+        <ul>
+          <li>Le client envoie un CreateTaskDto.</li>
+          <li>Le service applique les règles métier.</li>
+          <li>Le Repository sauvegarde une TaskEntity.</li>
+          <li>L’API renvoie un TaskResponseDto.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="flow">
+          <div class="flow-step dto"><strong>CreateTaskDto</strong><span>JSON entrant</span></div>
+          <div class="arrow">↓</div>
+          <div class="flow-step"><strong>TaskService</strong><span>règles métier</span></div>
+          <div class="arrow">↓</div>
+          <div class="flow-step dao"><strong>TaskRepository</strong><span>accès base</span></div>
+          <div class="arrow">↓</div>
+          <div class="flow-step dto"><strong>TaskResponseDto</strong><span>JSON sortant</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Code court</span>
+        <h2>DTO d’entrée et DTO de sortie</h2>
+        <ul>
+          <li>Le DTO d’entrée contient ce que le client a le droit d’envoyer.</li>
+          <li>Le DTO de sortie contient ce que l’API accepte de montrer.</li>
+          <li>On peut masquer certains champs internes.</li>
+          <li>On garde une API stable même si la base change.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code">public record CreateTaskDto(
+    String title
+) {}
+
+public record TaskResponseDto(
+    Long id,
+    String title,
+    boolean done
+) {}</div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Pourquoi séparer ?</span>
+        <h2>Éviter de publier la structure interne</h2>
+        <ul>
+          <li>La base peut contenir des champs techniques.</li>
+          <li>Le client n’a pas besoin de tout voir.</li>
+          <li>Le JSON peut être plus simple que l’entité.</li>
+          <li>Le code devient plus facile à faire évoluer.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="code">@Entity
+class TaskEntity {
+    Long id;
+    String title;
+    boolean done;
+    LocalDateTime createdAt;
+    String internalStatus;
+}</div>
+        <div class="prompt">
+          <strong>Mini-réflexe</strong>
+          Un champ interne en base n’est pas automatiquement un champ public dans l’API.
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Erreur fréquente</span>
+        <h2>Utiliser l’entité JPA comme DTO</h2>
+        <ul>
+          <li>C’est rapide au début.</li>
+          <li>Mais l’API devient dépendante de la base.</li>
+          <li>On risque d’exposer trop d’informations.</li>
+          <li>Les changements de table cassent les clients.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="cards-2">
+          <div class="card"><strong>À éviter</strong>Controller retourne directement TaskEntity</div>
+          <div class="card"><strong>Mieux</strong>Controller retourne TaskResponseDto</div>
+        </div>
+        <div class="question">
+          <strong>Question public</strong>
+          Quel champ ne devrait jamais sortir dans le JSON ?
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Règle simple</span>
+        <h2>Comment choisir le bon objet ?</h2>
+        <ul>
+          <li>Objet envoyé par HTTP ? DTO.</li>
+          <li>Objet sauvegardé par JPA ? Entity.</li>
+          <li>Objet qui accède à la base ? DAO ou Repository.</li>
+          <li>Objet qui décide ? Service ou Use Case.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="flow">
+          <div class="flow-step dto"><strong>DTO</strong><span>contrat avec le client</span></div>
+          <div class="flow-step"><strong>Entity</strong><span>modèle persisté</span></div>
+          <div class="flow-step dao"><strong>DAO / Repository</strong><span>accès aux données</span></div>
+          <div class="flow-step"><strong>Service</strong><span>règles et orchestration</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="slide">
+      <article class="panel">
+        <span class="eyebrow">Résumé</span>
+        <h2>La phrase à retenir</h2>
+        <ul>
+          <li>DTO : ce que l’application échange.</li>
+          <li>DAO : comment l’application récupère ou stocke.</li>
+          <li>Repository Spring : DAO moderne dans beaucoup de projets.</li>
+          <li>Séparer les rôles évite un code fragile.</li>
+        </ul>
+      </article>
+      <aside class="visual">
+        <div class="question">
+          <strong>Formule courte</strong>
+          DTO = transport. DAO = accès aux données.
+        </div>
+        <div class="timebox">Fin • 2 minutes de questions</div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="footer">
+    <div class="controls">
+      <button type="button" id="prev">← Prec.</button>
+      <button type="button" id="next">Suiv. →</button>
+    </div>
+    <div class="counter"><span id="current">1</span> / <span id="total">12</span></div>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const current = document.getElementById("current");
+    const total = document.getElementById("total");
+    const prev = document.getElementById("prev");
+    const next = document.getElementById("next");
+    let index = 0;
+
+    total.textContent = String(slides.length);
+
+    function showSlide(nextIndex) {
+      index = (nextIndex + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+      current.textContent = String(index + 1);
+    }
+
+    prev.addEventListener("click", () => showSlide(index - 1));
+    next.addEventListener("click", () => showSlide(index + 1));
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+        event.preventDefault();
+        showSlide(index + 1);
+      }
+      if (event.key === "ArrowLeft" || event.key === "PageUp") {
+        event.preventDefault();
+        showSlide(index - 1);
+      }
+      if (event.key === "Home") {
+        showSlide(0);
+      }
+      if (event.key === "End") {
+        showSlide(slides.length - 1);
+      }
+    });
+  </script>
+</body>
+</html>
