@@ -173,6 +173,13 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    public static void isTitleValid(String title){
+
+        if (title.isEmpty()){
+            throw new WrongValueException("La valeur de l'attribut 'title' est obligatoire");
+        }
+    }
+
     public static void isPriorityValid(String priority){
         boolean priorityValid = false;
 
