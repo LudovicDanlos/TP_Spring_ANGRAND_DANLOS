@@ -58,7 +58,15 @@ public class TaskServiceImpl implements TaskService {
             return null;
         } else  {
             Task task = itemOptional.get();
-            return new TaskResponse(task.getId(), task.getName(), task.getDescription(), task.isDone());
+            return new TaskResponse(
+                    task.getId(),
+                    task.getName(),
+                    task.getDescription(),
+                    task.getPriority(),
+                    task.getStatus(),
+                    task.getCreationDate(),
+                    task.getDeadline()
+            );
         }
     }
 
@@ -96,9 +104,17 @@ public class TaskServiceImpl implements TaskService {
             Task task = itemOptional.get();
             task.setName(request.getName());
             task.setDescription(request.getDescription());
-            task.setDone(request.isDone());
+            task.setStatus(request.getStatus());
             taskRepository.save(task);
-            return new TaskResponse(id, task.getName(), task.getDescription(), task.isDone());
+            return new TaskResponse(
+                    id,
+                    request.getName(),
+                    request.getDescription(),
+                    request.getPriority(),
+                    request.getStatus(),
+                    request.getCreationDate(),
+                    request.getDeadline()
+            );
         }
     }
 
