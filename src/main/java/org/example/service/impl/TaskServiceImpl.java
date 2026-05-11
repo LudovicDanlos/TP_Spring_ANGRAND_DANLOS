@@ -26,6 +26,8 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
 
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
     public TaskServiceImpl(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
@@ -106,7 +108,7 @@ public class TaskServiceImpl implements TaskService {
                 request.getDescription(),
                 request.getPriority(),
                 request.getStatus(),
-                LocalDateTime.now(), // Temps actuel
+                LocalDateTime.parse(LocalDateTime.now().format(formatter), formatter), // Temps actuel
                 request.getDeadline()
         );
 
@@ -128,7 +130,9 @@ public class TaskServiceImpl implements TaskService {
             Task task = itemOptional.get();
             task.setName(request.getName());
             task.setDescription(request.getDescription());
+            task.setPriority(request.getPriority());
             task.setStatus(request.getStatus());
+            task.setDeadline(request.getDeadline());
             taskRepository.save(task);
             return new TaskResponse(
                     id,
