@@ -24,19 +24,24 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String titre;
 
     private String description;
 
-    private boolean done;
+    // Valeurs possibles LOW, MEDIUM, HIGH
+    private String priorite;
+
+    // Valeurs possibles NOT_STARTED, STARTED, DONE
+    private String status;
 
     public Task() {
     }
 
-    public Task(String name, String description, boolean done) {
-        this.name = name;
+    public Task(String titre, String description, String priorite, String status) {
+        this.titre = titre;
         this.description = description;
-        this.done = done;
+        this.priorite = priorite;
+        this.status = status;
     }
 
     public Long getId() {
@@ -47,12 +52,12 @@ public class Task {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitre() {
+        return titre;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitre(String titre) {
+        this.titre = titre;
     }
 
     public String getDescription() {
@@ -63,11 +68,19 @@ public class Task {
         this.description = description;
     }
 
-    public boolean isDone() {
-        return done;
+    public String getPriorite() {
+        return priorite;
     }
 
-    public void setDone(boolean done) {
-        this.done = done;
+    public void setPriorite(String priorite) {
+        this.priorite = priorite;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
