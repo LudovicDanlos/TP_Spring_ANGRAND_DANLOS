@@ -101,6 +101,8 @@ public class TaskServiceImpl implements TaskService {
         // 3. creer l'entite
         // 4. sauvegarder avec le repository
         // 5. renvoyer un ItemResponse
+
+        // Vérification de la validité de la tâche entrée
         isTaskInputValid(request);
 
         Task task = new Task(
@@ -122,6 +124,10 @@ public class TaskServiceImpl implements TaskService {
         // 3. modifier les champs utiles
         // 4. sauvegarder
         // 5. renvoyer un ItemResponse
+
+        // Vérification de la validité de la tâche entrée
+        isTaskInputValid(request);
+
         Optional<Task> itemOptional = taskRepository.findById(id);
 
         if (itemOptional.isEmpty()) {
