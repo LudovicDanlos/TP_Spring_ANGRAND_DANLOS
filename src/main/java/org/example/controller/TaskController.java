@@ -23,7 +23,7 @@ import java.util.List;
  * Le seul endpoint complet du squelette est GET /items.
  */
 @RestController
-@RequestMapping("/items")
+@RequestMapping("/task")
 public class TaskController {
 
     private final TaskService taskService;
