@@ -29,8 +29,6 @@ public class TaskServiceImpl implements TaskService {
         this.taskRepository = taskRepository;
     }
 
-    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
     @Override
     public List<TaskResponse> findAll(int page, int size) {
         // Exemple complet :
@@ -40,39 +38,31 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findAll(pageable)
                 .stream()
                 .map(TaskResponse::fromEntity)
-                .toList(); // Ici le stream peut être remplacé par plein d'autre moyen. Il sagit juste d'une manière efficace et efficiente d'écrire cette partie.
-
-        /* Autre manière de faire si le stream n'est pas familié
-        List<ItemResponse> itemResponses = new ArrayList<>();
-        List<Item> all = itemRepository.findAll();
-
-        for (Item item : all) {
-            ItemResponse itemResponse = new ItemResponse(item.getId(), item.getName(), item.getDescription(), item.isDone());
-            itemResponses.add(itemResponse);
-        }
-        return itemResponses;
-         */
+                .toList();
     }
 
     @Override
-    public List<TaskResponse> findByStatus(String status) {
-        return taskRepository.findByStatus(status)
+    public List<TaskResponse> findByStatus(String status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return taskRepository.findByStatus(pageable, status)
                 .stream()
                 .map(TaskResponse::fromEntity)
                 .toList();
     }
 
     @Override
-    public List<TaskResponse> findByPriority(String priority) {
-        return taskRepository.findByPriority(priority)
+    public List<TaskResponse> findByPriority(String priority, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return taskRepository.findByPriority(pageable, priority)
                 .stream()
                 .map(TaskResponse::fromEntity)
                 .toList();
     }
 
     @Override
-    public List<TaskResponse> findByStatusAndPriority(String status, String priority) {
-        return taskRepository.findByStatusAndPriority(status, priority)
+    public List<TaskResponse> findByStatusAndPriority(String status, String priority, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return taskRepository.findByStatusAndPriority(pageable, status, priority)
                 .stream()
                 .map(TaskResponse::fromEntity)
                 .toList();

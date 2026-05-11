@@ -14,11 +14,11 @@ public interface TaskService {
 
     List<TaskResponse> findAll(int page, int size);
 
-    List<TaskResponse> findByStatus(String status);
+    List<TaskResponse> findByStatus(String status, int page, int size);
 
-    List<TaskResponse> findByPriority(String priority);
+    List<TaskResponse> findByPriority(String priority, int page, int size);
 
-    List<TaskResponse> findByStatusAndPriority(String status, String priority);
+    List<TaskResponse> findByStatusAndPriority(String status, String priority, int page, int size);
 
     TaskResponse findById(Long id);
 

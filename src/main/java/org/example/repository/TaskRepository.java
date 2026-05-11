@@ -3,6 +3,7 @@ package org.example.repository;
 import org.example.entity.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    List<Task> findByStatus(String status);
-    List<Task> findByPriority(String priority);
-    List<Task> findByStatusAndPriority(String status, String priority);
+    List<Task> findByStatus(Pageable pageable, String status);
+    List<Task> findByPriority(Pageable pageable, String priority);
+    List<Task> findByStatusAndPriority(Pageable pageable, String status, String priority);
 }
