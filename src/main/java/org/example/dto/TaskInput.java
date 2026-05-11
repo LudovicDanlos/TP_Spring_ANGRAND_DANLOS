@@ -1,7 +1,7 @@
 package org.example.dto;
 
-import org.example.entity.Task;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.example.entity.Task;
 
 import java.time.LocalDateTime;
 import java.util.Date;
