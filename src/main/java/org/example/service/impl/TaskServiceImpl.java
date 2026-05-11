@@ -3,6 +3,7 @@ package org.example.service.impl;
 import org.example.dto.TaskInput;
 import org.example.dto.TaskResponse;
 import org.example.entity.Task;
+import org.example.exception.InvalidGivenDataException;
 import org.example.repository.TaskRepository;
 import org.example.service.TaskService;
 import org.springframework.data.domain.PageRequest;
@@ -98,6 +99,8 @@ public class TaskServiceImpl implements TaskService {
         // 3. creer l'entite
         // 4. sauvegarder avec le repository
         // 5. renvoyer un ItemResponse
+        isTaskInputValid(request);
+
         Task task = new Task(
                 request.getTitre(),
                 request.getDescription(),
@@ -147,5 +150,25 @@ public class TaskServiceImpl implements TaskService {
         Optional<Task> itemOptional = taskRepository.findById(id);
 
         itemOptional.ifPresent(taskRepository::delete);
+    }
+
+    //////////////////////////////// Méthodes utilitaires ///////////////////////////////////////
+
+    public static void isTaskInputValid(TaskInput taskInput){
+        boolean taskInputValid = false;
+
+        if (!taskInput.getTitre().isEmpty()){
+            if (!taskInput.getPriority().isEmpty()){
+                if (!taskInput.getStatus().isEmpty()){
+                    if ((taskInput.getDeadline() != null) && (taskInput.getDeadline().isAfter(LocalDateTime.now()))){
+                        taskInputValid = true;
+                    }
+                }
+            }
+        }
+
+        if (!taskInputValid){
+            throw new InvalidGivenDataException();
+        }
     }
 }
