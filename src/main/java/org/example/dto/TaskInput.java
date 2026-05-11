@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import org.example.entity.Task;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * DTO d'entré.
@@ -12,7 +11,7 @@ import java.util.Date;
  */
 public class TaskInput {
 
-    private String name;
+    private String titre;
     private String description;
 
     // Valeurs possibles LOW, MEDIUM, HIGH
@@ -29,8 +28,8 @@ public class TaskInput {
     public TaskInput() {
     }
 
-    public TaskInput(String name, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
-        this.name = name;
+    public TaskInput(String titre, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
+        this.titre = titre;
         this.description = description;
         this.priority = priority;
         this.status = status;
@@ -49,12 +48,12 @@ public class TaskInput {
         );
     }
 
-    public String getName() {
-        return name;
+    public String getTitre() {
+        return titre;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitre(String titre) {
+        this.titre = titre;
     }
 
     public String getDescription() {

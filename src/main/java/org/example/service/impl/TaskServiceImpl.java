@@ -82,7 +82,7 @@ public class TaskServiceImpl implements TaskService {
         // 4. sauvegarder avec le repository
         // 5. renvoyer un ItemResponse
         Task task = new Task(
-                request.getName(),
+                request.getTitre(),
                 request.getDescription(),
                 request.getPriority(),
                 request.getStatus(),
@@ -106,13 +106,13 @@ public class TaskServiceImpl implements TaskService {
             return null;
         } else  {
             Task task = itemOptional.get();
-            task.setName(request.getName());
+            task.setName(request.getTitre());
             task.setDescription(request.getDescription());
             task.setStatus(request.getStatus());
             taskRepository.save(task);
             return new TaskResponse(
                     id,
-                    request.getName(),
+                    request.getTitre(),
                     request.getDescription(),
                     request.getPriority(),
                     request.getStatus(),
