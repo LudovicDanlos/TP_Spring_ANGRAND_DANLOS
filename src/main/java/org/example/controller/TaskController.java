@@ -16,7 +16,7 @@ import java.util.List;
  * Le seul endpoint complet du squelette est GET /items.
  */
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/tasks")
 public class TaskController {
 
     private final TaskService taskService;
@@ -25,8 +25,12 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping(params = {"page", "size"})
-    public ResponseEntity<List<TaskResponse>> findAll(@RequestParam int page, @RequestParam int size, @RequestParam(required = false) String status, @RequestParam(required = false) String priority) {
+    @GetMapping
+    public ResponseEntity<List<TaskResponse>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "999") int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String priority) {
         if (status != null && !status.isEmpty() && priority != null && !priority.isEmpty()) {
             return ResponseEntity.ok(taskService.findByStatusAndPriority(status, priority, page, size));
         } else if (status != null && !status.isEmpty()) {

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  */
 public class TaskInput {
 
-    private String titre;
+    private String name;
     private String description;
 
     // Valeurs possibles LOW, MEDIUM, HIGH
@@ -28,8 +28,8 @@ public class TaskInput {
     public TaskInput() {
     }
 
-    public TaskInput(String titre, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
-        this.titre = titre;
+    public TaskInput(String name, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
+        this.name = name;
         this.description = description;
         this.priority = priority;
         this.status = status;
@@ -48,12 +48,12 @@ public class TaskInput {
         );
     }
 
-    public String getTitre() {
-        return titre;
+    public String getName() {
+        return name;
     }
 
-    public void setTitre(String titre) {
-        this.titre = titre;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {

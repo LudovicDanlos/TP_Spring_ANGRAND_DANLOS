@@ -102,7 +102,7 @@ public class TaskServiceImpl implements TaskService {
         isTaskInputValid(request);
 
         Task task = new Task(
-                request.getTitre(),
+                request.getName(),
                 request.getDescription(),
                 request.getPriority(),
                 request.getStatus(),
@@ -126,13 +126,13 @@ public class TaskServiceImpl implements TaskService {
             return null;
         } else  {
             Task task = itemOptional.get();
-            task.setName(request.getTitre());
+            task.setName(request.getName());
             task.setDescription(request.getDescription());
             task.setStatus(request.getStatus());
             taskRepository.save(task);
             return new TaskResponse(
                     id,
-                    request.getTitre(),
+                    request.getName(),
                     request.getDescription(),
                     request.getPriority(),
                     request.getStatus(),
@@ -157,7 +157,7 @@ public class TaskServiceImpl implements TaskService {
     public static void isTaskInputValid(TaskInput taskInput){
         boolean taskInputValid = false;
 
-        if (!taskInput.getTitre().isEmpty()){
+        if (!taskInput.getName().isEmpty()){
             if (!taskInput.getPriority().isEmpty()){
                 if (!taskInput.getStatus().isEmpty()){
                     if ((taskInput.getDeadline() != null) && (taskInput.getDeadline().isAfter(LocalDateTime.now()))){
