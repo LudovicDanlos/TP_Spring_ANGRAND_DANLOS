@@ -7,7 +7,9 @@ Nous sommes restés sur le sujet de base, c'est-à-dire une API qui permet de g�
 ## Lancer le projet
 1. Lancer la base de données
 2. Lancer l'API, soit via un IDE en exécutant la classe TPApplication, soit avec la commande ```mvn spring-boot:run``` (ne marche pas chez nous)
-3. Lancer le FrontEnd avec les commandes : ```npm install``` puis ```npm run dev```
+3. Lancer le FrontEnd en vous plaçant dans le dossier frontEnd et en utilisant les commandes : ```npm install``` puis
+```npm run serve```
+4. Pour tester l'API, rendez-vous sur ```http://localhost:8081/```
 
 ## Architecture BackEnd
 Concernant l'architecture du BackEnd de notre API, nous avons utilisé une architecture en layers (ou couches). Voici les
