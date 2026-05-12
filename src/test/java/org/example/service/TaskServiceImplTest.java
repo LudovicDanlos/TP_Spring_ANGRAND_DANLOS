@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -73,54 +74,63 @@ class TaskServiceImplTest {
         assertEquals(creationDateTest.format(formatter), response.getFirst().getCreationDate().format(formatter));
         assertEquals(deadlineTest.format(formatter), response.getFirst().getDeadline().format(formatter));
     }
-//
-//    @Test
-//    void findById_shouldReturnMappedResponses() {
-//        Task firstTask = new Task("Premier item", "Description de test", false);
-//        firstTask.setId(1L);
-//
-//        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
-//
-//        TaskResponse response = itemService.findById(1L);
-//
-//        assertEquals(1L, response.getId());
-//        assertEquals("Premier item", response.getName());
-//        assertEquals("Description de test", response.getDescription());
-//        assertFalse(response.isDone());
-//    }
-//
-//    @Test
-//    void update_shouldReturnMappedResponses() {
-//        Task firstTask = new Task("Premier item", "Description de test", false);
-//        firstTask.setId(1L);
-//
-//        TaskInput itemChange = new TaskInput(1L, "Change item", "Description de test change", true);
-//        Task savedTask = new Task(itemChange.getName(), itemChange.getDescription(), itemChange.isDone());
-//        savedTask.setId(1L);
-//
-//        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
-//        when(taskRepository.save(firstTask)).thenReturn(savedTask);
-//
-//        TaskResponse response = itemService.update(1L, itemChange);
-//
-//        assertEquals(1L, response.getId());
-//        assertEquals("Change item", response.getName());
-//        assertEquals("Description de test change", response.getDescription());
-//        assertTrue(response.isDone());
-//    }
-//
-//    @Test
-//    void delete_shouldReturnMappedResponses() {
-//        Task firstTask = new Task("Premier item", "Description de test", false);
-//        firstTask.setId(1L);
-//
-//        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
-//
-//        itemService.delete(1L);
-//
-//        verify(taskRepository).delete(firstTask);
-//    }
-//
+
+    @Test
+    void findById_shouldReturnMappedResponses() {
+        LocalDateTime creationDateTest = LocalDateTime.now();
+        LocalDateTime deadlineTest = LocalDateTime.of(2026, 10, 21, 15, 0);
+        Task firstTask = new Task("Task Test 1", "Description de test", "HIGH", "TODO", creationDateTest, deadlineTest);
+        firstTask.setId(1L);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
+
+        TaskResponse response = itemService.findById(1L);
+
+
+        assertEquals(1L, response.getId());
+        assertEquals("Task Test 1", response.getName());
+        assertEquals("Description de test", response.getDescription());
+        assertEquals("HIGH", response.getPriority());
+        assertEquals("TODO", response.getStatus());
+    }
+
+    @Test
+    void update_shouldReturnMappedResponses() {
+        LocalDateTime creationDateTest = LocalDateTime.now();
+        LocalDateTime deadlineTest = LocalDateTime.of(2026, 10, 21, 15, 0);
+        Task firstTask = new Task("Task Test 1", "Description de test", "HIGH", "TODO", creationDateTest, deadlineTest);
+        firstTask.setId(1L);
+
+        TaskInput itemChange = new TaskInput("Change item", "Description de test change", "LOW", "DONE", deadlineTest);
+        Task savedTask = new Task(itemChange.getName(), itemChange.getDescription(), itemChange.getPriority(), itemChange.getStatus(), itemChange.getCreationDate(), itemChange.getDeadline());
+        savedTask.setId(1L);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
+        when(taskRepository.save(firstTask)).thenReturn(savedTask);
+
+        TaskResponse response = itemService.update(1L, itemChange);
+
+        assertEquals(1L, response.getId());
+        assertEquals("Change item", response.getName());
+        assertEquals("Description de test change", response.getDescription());
+        assertEquals("LOW", response.getPriority());
+        assertEquals("DONE", response.getStatus());
+    }
+
+    @Test
+    void delete_shouldReturnMappedResponses() {
+        LocalDateTime creationDateTest = LocalDateTime.now();
+        LocalDateTime deadlineTest = LocalDateTime.of(2026, 10, 21, 15, 0);
+        Task firstTask = new Task("Task Test 1", "Description de test", "HIGH", "TODO", creationDateTest, deadlineTest);
+        firstTask.setId(1L);
+
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(firstTask));
+
+        itemService.delete(1L);
+
+        verify(taskRepository).delete(firstTask);
+    }
+
     @Test
     void create_shouldReturnMappedResponses() {
         LocalDateTime deadlineTest = LocalDateTime.of(2026, 10, 21, 15, 0);
