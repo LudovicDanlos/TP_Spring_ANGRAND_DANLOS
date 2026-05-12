@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.TaskInput;
 import org.example.dto.TaskResponse;
 import org.example.entity.Task;
 import org.example.repository.TaskRepository;
@@ -120,20 +121,24 @@ class TaskServiceImplTest {
 //        verify(taskRepository).delete(firstTask);
 //    }
 //
-//    @Test
-//    void create_shouldReturnMappedResponses() {
-//        TaskInput taskInput = new TaskInput(1L, "Nouveau item", "Description de test", false);
-//        Task savedTask = new Task(taskInput.getName(), taskInput.getDescription(), taskInput.isDone());
-//        savedTask.setId(1L);
-//
-//        when(taskRepository.save(any(Task.class))).thenReturn(savedTask);
-//
-//        TaskResponse response = itemService.create(taskInput);
-//
-//        assertEquals(1L, response.getId());
-//        assertEquals("Nouveau item", response.getName());
-//        assertEquals("Description de test", response.getDescription());
-//        assertFalse(response.isDone());
-//    }
+    @Test
+    void create_shouldReturnMappedResponses() {
+        LocalDateTime deadlineTest = LocalDateTime.of(2026, 10, 21, 15, 0);
+        TaskInput taskInput = new TaskInput("Task Test 1", "Description de test", "HIGH", "TODO", deadlineTest);
+        Task savedTask = new Task(taskInput.getName(), taskInput.getDescription(), taskInput.getPriority(), taskInput.getStatus(), LocalDateTime.now(), taskInput.getDeadline());
+        savedTask.setId(1L);
+
+        when(taskRepository.save(any(Task.class))).thenReturn(savedTask);
+
+        TaskResponse response = itemService.create(taskInput);
+
+        assertEquals(1L, response.getId());
+        assertEquals("Task Test 1", response.getName());
+        assertEquals("Description de test", response.getDescription());
+        assertEquals("HIGH", response.getPriority());
+        assertEquals("TODO", response.getStatus());
+        assertEquals(LocalDateTime.now().format(formatter), response.getCreationDate().format(formatter));
+        assertEquals(deadlineTest.format(formatter), response.getDeadline().format(formatter));
+    }
 }
 
