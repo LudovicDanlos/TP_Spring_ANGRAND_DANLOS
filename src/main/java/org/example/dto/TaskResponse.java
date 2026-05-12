@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class TaskResponse {
 
     private Long id;
-    private String title;
+    private String name;
     private String description;
     private String priority;
     private String status;
@@ -21,9 +21,9 @@ public class TaskResponse {
     public TaskResponse() {
     }
 
-    public TaskResponse(Long id, String title, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
+    public TaskResponse(Long id, String name, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
         this.id = id;
-        this.title = title;
+        this.name = name;
         this.description = description;
         this.priority = priority;
         this.status = status;
@@ -35,7 +35,7 @@ public class TaskResponse {
     public static TaskResponse fromEntity(Task task) {
         return new TaskResponse(
                 task.getId(),
-                task.getTitle(),
+                task.getName(),
                 task.getDescription(),
                 task.getPriority(),
                 task.getStatus(),
@@ -52,12 +52,12 @@ public class TaskResponse {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {

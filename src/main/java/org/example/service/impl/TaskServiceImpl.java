@@ -85,7 +85,7 @@ public class TaskServiceImpl implements TaskService {
             Task task = itemOptional.get();
             return new TaskResponse(
                     task.getId(),
-                    task.getTitle(),
+                    task.getName(),
                     task.getDescription(),
                     task.getPriority(),
                     task.getStatus(),
@@ -107,7 +107,7 @@ public class TaskServiceImpl implements TaskService {
         isTaskInputValid(request);
 
         Task task = new Task(
-                request.getTitle(),
+                request.getName(),
                 request.getDescription(),
                 request.getPriority(),
                 request.getStatus(),
@@ -135,7 +135,7 @@ public class TaskServiceImpl implements TaskService {
             throw new TaskNotFoundException(id);
         } else  {
             Task task = itemOptional.get();
-            task.setTitle(request.getTitle());
+            task.setName(request.getName());
             task.setDescription(request.getDescription());
             task.setPriority(request.getPriority());
             task.setStatus(request.getStatus());
@@ -143,7 +143,7 @@ public class TaskServiceImpl implements TaskService {
             taskRepository.save(task);
             return new TaskResponse(
                     id,
-                    request.getTitle(),
+                    request.getName(),
                     request.getDescription(),
                     request.getPriority(),
                     request.getStatus(),
@@ -170,7 +170,7 @@ public class TaskServiceImpl implements TaskService {
     //////////////////////////////// Méthodes utilitaires ///////////////////////////////////////
 
     public static void isTaskInputValid(TaskInput taskInput){
-        isTitleValid(taskInput.getTitle());
+        isTitleValid(taskInput.getName());
         isPriorityValid(taskInput.getPriority());
         isStatusValid(taskInput.getStatus());
         isDeadlineValid(taskInput.getDeadline());

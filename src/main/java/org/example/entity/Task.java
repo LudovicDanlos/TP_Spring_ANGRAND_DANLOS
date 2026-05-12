@@ -26,7 +26,7 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    private String name;
 
     private String description;
 
@@ -43,8 +43,8 @@ public class Task {
     public Task() {
     }
 
-    public Task(String title, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
-        this.title = title;
+    public Task(String name, String description, String priority, String status, LocalDateTime creationDate, LocalDateTime deadline) {
+        this.name = name;
         this.description = description;
         this.priority = priority;
         this.status = status;
@@ -60,12 +60,12 @@ public class Task {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
