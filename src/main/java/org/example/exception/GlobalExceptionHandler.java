@@ -5,6 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * L'utilisation de @RestControllerAdvice est une bonne pratique (bravo)
+ * et va dans le sens d'une gestion centralisée des erreurs.
+ *
+ * En revanche, les handlers renvoient uniquement une String.
+ * Pour le TP, cela reste fonctionnel et les statuts HTTP sont justes
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

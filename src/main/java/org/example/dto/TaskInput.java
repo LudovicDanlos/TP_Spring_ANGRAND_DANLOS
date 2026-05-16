@@ -8,7 +8,16 @@ import java.time.LocalDateTime;
  * DTO d'entré.
  * Permet de controler ce que l'API reçoit.
  */
+
+/**
+ * DTO d'entrée.
+ * Permet de controler ce que l'API renvoie. => j'aurais séparer dans deux répo différent dto.response et dto.request afin d'avoir une navigation plus simple (-0)
+ */
 public class TaskInput {
+
+    /**
+     * manque des finals partout + on aurait pu utiliser des records java car c'est java 21 (-0)
+     */
 
     private String name;
     private String description;

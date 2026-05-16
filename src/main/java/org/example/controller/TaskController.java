@@ -26,11 +26,19 @@ public class TaskController {
     }
 
     @GetMapping
+    /**
+     * Il y a ici une logique de selection selon les query params directement
+     * dans le controller.
+     * (-2)
+     * A noter aussi : la solution ne serait pas une simple surcharge Java,
+     * mais eventuellement des mappings Spring differents avec params = ...
+     */
     public ResponseEntity<List<TaskResponse>> findAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "999") int size,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String priority) {
+
         if (status != null && !status.isEmpty() && priority != null && !priority.isEmpty()) {
             return ResponseEntity.ok(taskService.findByStatusAndPriority(status, priority, page, size));
         } else if (status != null && !status.isEmpty()) {
@@ -57,6 +65,14 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
+    /**
+     * La reponse HTTP choisie est correcte, mais cette methode appelle le service
+     * update(...) puis relit immediatement la tache avec findById(...).
+     * Cela fait un appel supplementaire inutile alors que update renvoie deja
+     * un TaskResponse.(-0.5)
+     *
+     * La variable response n'est en plus pas utilisee.
+     */
     public ResponseEntity<TaskResponse> update(@PathVariable Long id, @RequestBody TaskInput request) {
         // 1. remplacer Object par un vrai DTO d'entree
         // 2. appeler le service
@@ -72,6 +88,4 @@ public class TaskController {
         taskService.delete(id);
         return ResponseEntity.noContent().build();
     }
-
-
 }

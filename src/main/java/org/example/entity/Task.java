@@ -52,6 +52,12 @@ public class Task {
         this.deadline = deadline;
     }
 
+    /**
+     * trés bien d'avoir fait les getters et setter vous même sans de dépendance style Lombok, les dépendances inutiles ne sont pas perçu comme trés clean
+     * car il lie votre projet a d'autre et si ces autres projets se trouve avoir une faille de sécurité alors vous égalements.
+     * (+0 car tout le monde à fait ça)
+     */
+
     public Long getId() {
         return id;
     }

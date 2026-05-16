@@ -96,6 +96,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    /**
+     * La validation des regles metier dans le service est conforme au sujet
+     *
+     * En revanche, la creation de la date courante est inutilement complexe :
+     * LocalDateTime.now() suffisait. Ce n'est pas bloquant, donc pas de retrait,
+     * mais cela ajoute du bruit inutile.
+     */
     public TaskResponse create(TaskInput request) {
         // 1. remplacer Object par un vrai DTO d'entree
         // 2. appliquer les regles metier
@@ -103,7 +110,7 @@ public class TaskServiceImpl implements TaskService {
         // 4. sauvegarder avec le repository
         // 5. renvoyer un ItemResponse
 
-        // Vérification de la validité de la tâche entrée
+        // Verification de la validite de la tache entree
         isTaskInputValid(request);
 
         Task task = new Task(
@@ -119,6 +126,15 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    /**
+     * La methode verifie bien l'existence de la tache avant ecriture,
+     * ce qui est demande par le sujet.
+     *
+     * En revanche, la reponse est reconstruite a partir du DTO d'entree
+     * au lieu de partir de l'entite reellement sauvegardee.
+     * Cela peut renvoyer un etat incoherent a l'appelant, notamment pour
+     * les champs geres par le backend. (-0.5)
+     */
     public TaskResponse update(Long id, TaskInput request) {
         // 1. remplacer Object par un vrai DTO d'entree
         // 2. retrouver l'item en base
@@ -126,7 +142,7 @@ public class TaskServiceImpl implements TaskService {
         // 4. sauvegarder
         // 5. renvoyer un ItemResponse
 
-        // Vérification de la validité de la tâche entrée
+        // Verification de la validite de la tache entree
         isTaskInputValid(request);
 
         Optional<Task> itemOptional = taskRepository.findById(id);
@@ -167,8 +183,13 @@ public class TaskServiceImpl implements TaskService {
         itemOptional.ifPresent(taskRepository::delete);
     }
 
-    //////////////////////////////// Méthodes utilitaires ///////////////////////////////////////
+    //////////////////////////////// Methodes utilitaires ///////////////////////////////////////
 
+    /**
+     * Cette centralisation des regles est acceptable pour le TP :
+     * le sujet demande explicitement que le service contienne la logique metier
+     * et verifie les regles.
+     */
     public static void isTaskInputValid(TaskInput taskInput){
         isTitleValid(taskInput.getName());
         isPriorityValid(taskInput.getPriority());
@@ -176,6 +197,13 @@ public class TaskServiceImpl implements TaskService {
         isDeadlineValid(taskInput.getDeadline());
     }
 
+    /**
+     * La regle "titre obligatoire" est bien presente, ce qui est attendu.
+     *
+     * En revanche, title n'est pas teste contre null avant l'appel a isEmpty().
+     * Dans ce cas, on ne renvoie plus une erreur metier claire mais un plantage
+     * technique possible en 500. (-0.5)
+     */
     public static void isTitleValid(String title){
 
         if (title.isEmpty()){
@@ -183,6 +211,14 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
+    /**
+     * La regle "priorite obligatoire et bornee a des valeurs attendues"
+     * est bien implementee, donc le fond est bon.
+     *
+     * En revanche, priority n'est pas teste contre null avant isEmpty().
+     * Meme consequence que precedemment : risque de NullPointerException
+     * au lieu d'une erreur claire retournee a l'utilisateur.
+     */
     public static void isPriorityValid(String priority){
         boolean priorityValid = false;
 
@@ -193,10 +229,18 @@ public class TaskServiceImpl implements TaskService {
         }
 
         if (!priorityValid){
-            throw new WrongValueException("La valeur de l'attribut 'priority' est obligatoire et ne peut être autre que : LOW, MEDIUM ou HIGH");
+            throw new WrongValueException("La valeur de l'attribut 'priority' est obligatoire et ne peut etre autre que : LOW, MEDIUM ou HIGH");
         }
     }
 
+    /**
+     * La regle sur le statut est bien presente et conforme au sujet.
+     *
+     * En revanche, status n'est pas teste contre null avant isEmpty().
+     * On retrouve le meme probleme de robustesse que sur les autres validations :
+     * une entree invalide peut provoquer une erreur technique au lieu d'une
+     * erreur metier propre.
+     */
     public static void isStatusValid(String status){
         boolean statusValid = false;
 
@@ -207,10 +251,14 @@ public class TaskServiceImpl implements TaskService {
         }
 
         if (!statusValid){
-            throw new WrongValueException("La valeur de l'attribut 'status' est obligatoire et ne peut être autre que : TODO, IN_PROGRESS ou DONE");
+            throw new WrongValueException("La valeur de l'attribut 'status' est obligatoire et ne peut etre autre que : TODO, IN_PROGRESS ou DONE");
         }
     }
 
+    /**
+     * La verification d'une deadline future est une bonne regle metier.
+     * Rien a retirer ici sur le fond.
+     */
     public static void isDeadlineValid(LocalDateTime deadline){
         boolean deadlineValid = false;
 
@@ -221,7 +269,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         if (!deadlineValid){
-            throw new WrongValueException("La valeur de l'attribut 'deadline' est obligatoire et doit être une date future à la date actuelle");
+            throw new WrongValueException("La valeur de l'attribut 'deadline' est obligatoire et doit etre une date future a la date actuelle");
         }
     }
 }

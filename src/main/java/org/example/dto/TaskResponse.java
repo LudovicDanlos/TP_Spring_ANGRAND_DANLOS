@@ -31,7 +31,13 @@ public class TaskResponse {
         this.deadline = deadline;
 
     }
-
+    
+    /**
+     * pourquoi pas mettre le mapper dans le DTO mais faut l'argumenter en l'absence d'argument ça laisse à penser que vous n'avez pas compris
+     * l'architecture N-tier surtout qu'ici vous mappez un DTO direct en Entity. (-0,5)
+     *
+     * En l'absence d'argument il aurait fallu faire un mapper qui découpe mieux le code et le rend de ce fait plus maintenable avec des classes plus propres.
+     */
     public static TaskResponse fromEntity(Task task) {
         return new TaskResponse(
                 task.getId(),

@@ -2,6 +2,7 @@
 
 Socle de depart pour les eleves.
 
+## 16/20 -> détails disponible un peu partout dans le code
 ## Objectif
 
 Comprendre une architecture backend propre avec :
